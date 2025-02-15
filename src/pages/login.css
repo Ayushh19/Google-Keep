@@ -1,0 +1,26 @@
+/* Login Page Styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 2rem;
+}
+
+.login-box {
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .login-container {
+    padding: 1rem;
+  }
+  .login-box {
+    padding: 1.5rem;
+  }
+}

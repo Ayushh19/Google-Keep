@@ -1,0 +1,30 @@
+/* Signup Page Styles */
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 4rem;
+}
+
+.signup-box {
+  padding: 2rem;
+  max-width: 700px;
+}
+
+.signup-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Hide the image on small screens */
+@media (max-width: 600px) {
+  .signup-content {
+    flex-direction: column;
+  }
+  .signup-image {
+    display: none;
+  }
+}
