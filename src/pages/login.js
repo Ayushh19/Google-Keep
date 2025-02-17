@@ -1,54 +1,70 @@
 
 
 import React, { useState } from "react";
-import { Box, Paper, Typography, TextField, Link, Button } from "@mui/material";
+import { Box, Paper, Typography, TextField, Button } from "@mui/material";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { signInAPI } from "../services/userServices";
 import "./login.css";
 
 const Login = () => {
-  // State for form fields
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    emailOrPhone: "",
+    email: "",
     password: "",
   });
 
-  // State for errors
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error when user types
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  // Validate form before submission
   const validateForm = () => {
     let newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
-    const phoneRegex = /^[0-9]{10}$/; // 10-digit phone number
-    const passwordRegex = /^.{8,}$/; // At least 8 characters
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formData.emailOrPhone.trim()) {
-      newErrors.emailOrPhone = "Email or phone is required";
-    } else if (!emailRegex.test(formData.emailOrPhone) && !phoneRegex.test(formData.emailOrPhone)) {
-      newErrors.emailOrPhone = "Enter a valid email or 10-digit phone number";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Enter a valid email";
     }
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = "Password must be at least 8 characters long";
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Login successful:", formData);
-      alert("Login Successful! 🎉");
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const response = await signInAPI({
+        email: formData.email,
+        password: formData.password,
+        service: "advance",
+      });
+
+      if (response.data && response.data.id) {
+        localStorage.setItem("token", response.data.id);
+        localStorage.setItem("userId", response.data.userId);
+        
+        alert("Login Successful! 🎉");
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      setErrors({
+        submit: error.response?.data?.message || "Login failed. Please check your credentials.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,16 +82,16 @@ const Login = () => {
         </Typography>
 
         <TextField
-          label="Email or phone"
-          name="emailOrPhone"
+          label="Email"
+          name="email"
           variant="outlined"
           fullWidth
           required
           sx={{ mb: 2 }}
-          value={formData.emailOrPhone}
+          value={formData.email}
           onChange={handleChange}
-          error={!!errors.emailOrPhone}
-          helperText={errors.emailOrPhone}
+          error={!!errors.email}
+          helperText={errors.email}
         />
 
         <TextField
@@ -92,14 +108,32 @@ const Login = () => {
           helperText={errors.password}
         />
 
-        <Link href="#" sx={{ display: "block", textAlign: "left", mb: 2 }}>
+        {errors.submit && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {errors.submit}
+          </Typography>
+        )}
+
+        <Button
+          component={RouterLink}
+          to="/forgot-password"
+          color="primary"
+          sx={{ display: "block", textAlign: "left", mb: 2 }}
+        >
           Forgot Password?
-        </Link>
+        </Button>
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Link href="#">Create Account</Link>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Login
+          <Button component={RouterLink} to="/signup" color="primary">
+            Create Account
+          </Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </Box>
       </Paper>
@@ -108,8 +142,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
-
-

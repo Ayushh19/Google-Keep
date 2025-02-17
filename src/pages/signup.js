@@ -1,7 +1,7 @@
 
 
 
-import React, { useState } from "react";
+import { useState } from "react"
 import {
   Box,
   Paper,
@@ -11,105 +11,99 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
-  useMediaQuery
-} from "@mui/material";
-import { signUpAPI } from "../services/userServices"; 
-import "./signup.css";
+  useMediaQuery,
+} from "@mui/material"
+import { signUpAPI } from "../services/userServices"
+import { useNavigate, Link as RouterLink } from "react-router-dom"
+import "./signup.css"
 
 function Signup() {
-  const isMobile = useMediaQuery("(max-width:600px)");
+  const navigate = useNavigate()
+  const isMobile = useMediaQuery("(max-width:600px)")
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    username: "",
+    email: "",
     password: "",
     confirmPassword: "",
     showPassword: false,
-  });
+  })
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // For button loading state
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setErrors({ ...errors, [e.target.name]: "" })
+  }
 
   const togglePasswordVisibility = () => {
-    setFormData({ ...formData, showPassword: !formData.showPassword });
-  };
+    setFormData({ ...formData, showPassword: !formData.showPassword })
+  }
 
   const validateForm = () => {
-    let newErrors = {};
-    const usernameRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const newErrors = {}
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
-    if (!formData.firstName.trim()) newErrors.firstName = "First Name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required";
+    if (!formData.firstName.trim()) newErrors.firstName = "First Name is required"
+    if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required"
 
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (!usernameRegex.test(formData.username)) {
-      newErrors.username = "Username must be an email ID";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required"
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Invalid email format"
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = "Password is required"
     } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = "Password must be at least 8 characters long & contain letters, numbers & symbols";
+      newErrors.password = "Password must be at least 8 characters long & contain letters, numbers & symbols"
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Confirm Password is required";
+      newErrors.confirmPassword = "Confirm Password is required"
     } else if (formData.confirmPassword !== formData.password) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = "Passwords do not match"
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-  
-    setLoading(true);
+    e.preventDefault()
+    if (!validateForm()) return
+
+    setLoading(true)
     const userData = {
       firstName: formData.firstName,
       lastName: formData.lastName,
-      email: formData.username, // API expects 'email', not 'username'
+      email: formData.email,
       password: formData.password,
-    };
-  
-    try {
-      const response = await signUpAPI(userData);
-      console.log("Signup Successful:", response);
-  
-      // Check if the response contains a token
-      if (response.id && response.idToken) {
-        localStorage.setItem("token", response.idToken); // Store token
-        alert("Signup Successful! 🎉 You are now logged in.");
-      } else {
-        alert("Signup successful, but no token received.");
-      }
-  
-      setFormData({
-        firstName: "",
-        lastName: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-        showPassword: false,
-      });
-    } catch (error) {
-      console.error("Signup Error:", error);
-      alert(error.response?.data?.message || "Signup failed. Please try again.");
-    } finally {
-      setLoading(false);
+      service: "advance",
     }
-  };
-  
+
+    try {
+      const response = await signUpAPI(userData)
+      console.log("Signup Response:", response)
+
+      if (response.id) {
+        localStorage.setItem("userId", response.id)
+        alert("Signup Successful! 🎉")
+        navigate("/login")
+      } else {
+        alert("Signup successful, please login to continue.")
+        navigate("/login")
+      }
+    } catch (error) {
+      console.error("Signup Error:", error)
+      alert(error.message || "Signup failed. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Box className="signup-container">
@@ -149,23 +143,20 @@ function Signup() {
             </Box>
 
             <TextField
-              label="Username (Email)"
-              name="username"
+              label="Email"
+              name="email"
               variant="outlined"
               fullWidth
               required
               sx={{ mb: 2 }}
-              value={formData.username}
+              value={formData.email}
               onChange={handleChange}
-              error={!!errors.username}
-              helperText={errors.username}
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <Typography variant="body2" color="gray">
               You can use letters, numbers & periods
             </Typography>
-            <Link href="#" variant="body2">
-              Use my current email instead
-            </Link>
 
             <Box display="flex" gap={2} mt={2} mb={2}>
               <TextField
@@ -204,7 +195,9 @@ function Signup() {
             />
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-              <Link href="#">Sign in instead</Link>
+              <RouterLink to="/login" style={{ textDecoration: 'none' }}>
+                <Button color="primary">Sign in instead</Button>
+              </RouterLink>
               <Button variant="contained" color="primary" onClick={handleSubmit} disabled={loading}>
                 {loading ? "Signing Up..." : "Next"}
               </Button>
@@ -214,10 +207,9 @@ function Signup() {
           {!isMobile && (
             <Box className="signup-image">
               <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ76wwZgUdWNVbWRDDbO40cLs7IfvJ1b33N0gBfrE-jRjOVLoDf"
+                src="https://ssl.gstatic.com/accounts/signup/glif/account.svg"
                 alt="Google Signup"
-                width="225"
-                height="200"
+                style={{ width: "225px", height: "200px" }}
               />
               <Typography variant="body2" className="signup-image-text">
                 One account. All of Google working for you
@@ -227,10 +219,16 @@ function Signup() {
         </Box>
       </Paper>
     </Box>
-  );
+  )
 }
 
-export default Signup;
+export default Signup
+
+
+
+
+
+
 
 
 

@@ -1,23 +1,24 @@
-import logo from './logo.svg';
-import Dashboard from './pages/Dashboard';
+
+
+
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/login';
-
-
-import SignUp from './pages/signup';
-
+import Signup from './pages/signup';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
-    <div className="App">
-      {/* <Dashboard/> */}
-       {/* <Login/> */}
-       <SignUp/>   
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Redirect root to login by default */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
-
-
 
