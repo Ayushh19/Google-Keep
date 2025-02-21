@@ -1,82 +1,132 @@
-import React, { useState } from "react";
-import { Paper, Typography, IconButton, Box } from "@mui/material";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import PaletteIcon from "@mui/icons-material/Palette";
-import ImageIcon from "@mui/icons-material/Image";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
+
+
+"use client"
+
+import { useState } from "react"
+import { Paper, Typography, IconButton, Box } from "@mui/material"
+import PushPinIcon from '@mui/icons-material/PushPin';
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
+import PersonAddIcon from "@mui/icons-material/PersonAdd"
+import PaletteIcon from "@mui/icons-material/Palette"
+import ImageIcon from "@mui/icons-material/Image"
+import ArchiveIcon from "@mui/icons-material/Archive"
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
 const NotesThird = ({ title, content }) => {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
 
   return (
     <Paper
       elevation={3}
       sx={{
-        marginTop: 10,
-        marginLeft: 40,
-        padding: 3.4,
+        width: 200,
+        height: "fit-content",
+        margin: 2,
+        padding: 2,
         borderRadius: 2,
-        maxWidth: 250,
-        transition: "0.3s",
         position: "relative",
+        transition: "box-shadow 0.3s",
         "&:hover": { boxShadow: 6 },
+        overflow: "visible",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Check Circle Icon (Appears on Hover) */}
+      {/* Top Icons (Show on Hover) */}
       {hovered && (
-        <IconButton
-          sx={{ position: "absolute", top: 5, left: 5 }}
-          size="small"
-        >
-          <CheckCircleIcon />
-        </IconButton>
+        <>
+          <IconButton
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              padding: 0,
+            }}
+          >
+            <CheckCircleIcon sx={{ fontSize: 20, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              padding: 0,
+            }}
+          >
+            <PushPinIcon sx={{ fontSize: 20, color: "#5f6368" }} />
+          </IconButton>
+        </>
       )}
 
-      {/* Title */}
-      <Typography variant="subtitle1" fontWeight="bold">
-        {title}
-      </Typography>
+      {/* Content Area */}
+      <Box sx={{ mt: hovered ? 4 : 0 }}>
+        {/* Title */}
+        <Typography
+          variant="subtitle1"
+          sx={{
+            wordWrap: "break-word",
+            mb: 1,
+            fontWeight: "normal",
+          }}
+        >
+          {title}
+        </Typography>
 
-      {/* Content */}
-      <Typography variant="body2" color="textSecondary">
-        {content}
-      </Typography>
+        {/* Content */}
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            wordWrap: "break-word",
+            whiteSpace: "pre-wrap",
+            marginBottom: hovered ? 5 : 0,
+          }}
+        >
+          {content}
+        </Typography>
+      </Box>
 
-      {/* Icons (Appear on Hover) */}
+      {/* Bottom Icons (Show on Hover) */}
       {hovered && (
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-start",
             alignItems: "center",
-            marginTop: 1,
+            position: "absolute",
+            bottom: 8,
+            left: 8,
+            right: 8,
+            gap: 0.5,
           }}
         >
-          <Box>
-            <IconButton size="small">
-              <NotificationsNoneIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small">
-              <PersonAddIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small">
-              <PaletteIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small">
-              <ImageIcon fontSize="small" />
-            </IconButton>
-          </Box>
           <IconButton size="small">
-            <MoreVertIcon fontSize="small" />
+            <NotificationsNoneIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton size="small">
+            <PersonAddIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton size="small">
+            <PaletteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton size="small">
+            <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton size="small">
+            <ArchiveIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          </IconButton>
+          <IconButton size="small">
+            <DeleteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
           </IconButton>
         </Box>
       )}
     </Paper>
-  );
-};
+  )
+}
 
-export default NotesThird;
+export default NotesThird
+

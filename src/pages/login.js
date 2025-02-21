@@ -55,7 +55,7 @@ const Login = () => {
         localStorage.setItem("token", response.data.id);
         localStorage.setItem("userId", response.data.userId);
         
-        alert("Login Successful! 🎉");
+        // alert("Login Successful! 🎉");
         navigate("/dashboard");
       }
     } catch (error) {
