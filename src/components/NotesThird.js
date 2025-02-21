@@ -1,6 +1,5 @@
 
 
-
 "use client"
 
 import { useState } from "react"
@@ -11,11 +10,51 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd"
 import PaletteIcon from "@mui/icons-material/Palette"
 import ImageIcon from "@mui/icons-material/Image"
 import ArchiveIcon from "@mui/icons-material/Archive"
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import axios from "axios"
 
-const NotesThird = ({ title, content }) => {
+const NotesThird = ({ title, content, id, isArchived = false, onArchiveToggle }) => {
   const [hovered, setHovered] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
+
+  const handleArchiveToggle = async () => {
+    if (isArchiving) return
+    
+    setIsArchiving(true)
+    
+    try {
+      const token = localStorage.getItem("token")
+      
+      // Call onArchiveToggle first for immediate UI update
+      onArchiveToggle(id, !isArchived)
+
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/archiveNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          isArchived: !isArchived
+        }
+      })
+
+      if (!response.data?.status?.success) {
+        // If API call fails, revert the UI change
+        onArchiveToggle(id, isArchived)
+      }
+    } catch (error) {
+      console.error("Error toggling archive status:", error)
+      // Revert UI change on error
+      onArchiveToggle(id, isArchived)
+    } finally {
+      setIsArchiving(false)
+    }
+  }
 
   return (
     <Paper
@@ -34,7 +73,6 @@ const NotesThird = ({ title, content }) => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Top Icons (Show on Hover) */}
       {hovered && (
         <>
           <IconButton
@@ -62,9 +100,7 @@ const NotesThird = ({ title, content }) => {
         </>
       )}
 
-      {/* Content Area */}
       <Box sx={{ mt: hovered ? 4 : 0 }}>
-        {/* Title */}
         <Typography
           variant="subtitle1"
           sx={{
@@ -76,7 +112,6 @@ const NotesThird = ({ title, content }) => {
           {title}
         </Typography>
 
-        {/* Content */}
         <Typography
           variant="body2"
           color="textSecondary"
@@ -90,7 +125,6 @@ const NotesThird = ({ title, content }) => {
         </Typography>
       </Box>
 
-      {/* Bottom Icons (Show on Hover) */}
       {hovered && (
         <Box
           sx={{
@@ -116,8 +150,16 @@ const NotesThird = ({ title, content }) => {
           <IconButton size="small">
             <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
           </IconButton>
-          <IconButton size="small">
-            <ArchiveIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+          <IconButton 
+            size="small" 
+            onClick={handleArchiveToggle}
+            disabled={isArchiving}
+          >
+            {isArchived ? (
+              <UnarchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+            ) : (
+              <ArchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+            )}
           </IconButton>
           <IconButton size="small">
             <DeleteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
@@ -129,4 +171,3 @@ const NotesThird = ({ title, content }) => {
 }
 
 export default NotesThird
-

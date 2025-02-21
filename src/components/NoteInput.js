@@ -28,7 +28,8 @@ const NoteInput = () => {
         },
       })
       if (response.data?.data?.data) {
-        setNotes(response.data.data.data)
+        const unarchived = response.data.data.data.filter(note => !note.isArchived)
+        setNotes(unarchived)
       }
     } catch (error) {
       console.error("Error fetching notes:", error)
@@ -39,7 +40,6 @@ const NoteInput = () => {
     try {
       const token = localStorage.getItem("token")
 
-      // Create note data object
       const noteData = {
         title: newNote.title,
         description: newNote.note,
@@ -63,6 +63,15 @@ const NoteInput = () => {
       }
     } catch (error) {
       console.error("Error adding note:", error?.response?.data || error.message)
+    }
+  }
+
+  const handleArchiveToggle = (noteId, isArchived) => {
+    if (isArchived) {
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
+    } else {
+      // If unarchiving, add the note back to the list
+      fetchNotes()
     }
   }
 
@@ -120,12 +129,18 @@ const NoteInput = () => {
 
       <Box sx={{ display: "flex", flexWrap: "wrap", marginLeft: "250px", marginTop: "20px" }}>
         {notes.map((note) => (
-          <NotesThird key={note.id} title={note.title} content={note.description} />
+          <NotesThird 
+            key={note.id}
+            id={note.id} 
+            title={note.title} 
+            content={note.description}
+            isArchived={false}
+            onArchiveToggle={handleArchiveToggle}
+          />
         ))}
       </Box>
     </>
   )
 }
 
-export default NoteInput;
-
+export default NoteInput
