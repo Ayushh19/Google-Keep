@@ -1,5 +1,6 @@
 
 
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -28,8 +29,8 @@ const NoteInput = () => {
         },
       })
       if (response.data?.data?.data) {
-        const unarchived = response.data.data.data.filter(note => !note.isArchived)
-        setNotes(unarchived)
+        const activeNotes = response.data.data.data.filter(note => !note.isArchived && !note.isDeleted)
+        setNotes(activeNotes)
       }
     } catch (error) {
       console.error("Error fetching notes:", error)
@@ -70,7 +71,14 @@ const NoteInput = () => {
     if (isArchived) {
       setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
     } else {
-      // If unarchiving, add the note back to the list
+      fetchNotes()
+    }
+  }
+
+  const handleTrashToggle = (noteId, isTrashed) => {
+    if (isTrashed) {
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
+    } else {
       fetchNotes()
     }
   }
@@ -135,7 +143,9 @@ const NoteInput = () => {
             title={note.title} 
             content={note.description}
             isArchived={false}
+            isTrashed={false}
             onArchiveToggle={handleArchiveToggle}
+            onTrashToggle={handleTrashToggle}
           />
         ))}
       </Box>
@@ -143,4 +153,4 @@ const NoteInput = () => {
   )
 }
 
-export default NoteInput
+export default NoteInput;

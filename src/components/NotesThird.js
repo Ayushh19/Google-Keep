@@ -12,12 +12,17 @@ import ImageIcon from "@mui/icons-material/Image"
 import ArchiveIcon from "@mui/icons-material/Archive"
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import { Tooltip } from "@mui/material";
 import axios from "axios"
 
-const NotesThird = ({ title, content, id, isArchived = false, onArchiveToggle }) => {
+const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false, onArchiveToggle, onTrashToggle, onDeleteForever }) => {
   const [hovered, setHovered] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
+  const [isTrashing, setIsTrashing] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleArchiveToggle = async () => {
     if (isArchiving) return
@@ -27,7 +32,6 @@ const NotesThird = ({ title, content, id, isArchived = false, onArchiveToggle })
     try {
       const token = localStorage.getItem("token")
       
-      // Call onArchiveToggle first for immediate UI update
       onArchiveToggle(id, !isArchived)
 
       const response = await axios({
@@ -44,15 +48,80 @@ const NotesThird = ({ title, content, id, isArchived = false, onArchiveToggle })
       })
 
       if (!response.data?.status?.success) {
-        // If API call fails, revert the UI change
         onArchiveToggle(id, isArchived)
       }
     } catch (error) {
       console.error("Error toggling archive status:", error)
-      // Revert UI change on error
       onArchiveToggle(id, isArchived)
     } finally {
       setIsArchiving(false)
+    }
+  }
+
+  const handleTrashToggle = async () => {
+    if (isTrashing) return
+    
+    setIsTrashing(true)
+    
+    try {
+      const token = localStorage.getItem("token")
+      
+      onTrashToggle(id, !isTrashed)
+
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/trashNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          isDeleted: !isTrashed
+        }
+      })
+
+      if (!response.data?.status?.success) {
+        onTrashToggle(id, isTrashed)
+      }
+    } catch (error) {
+      console.error("Error toggling trash status:", error)
+      onTrashToggle(id, isTrashed)
+    } finally {
+      setIsTrashing(false)
+    }
+  }
+
+  const handleDeleteForever = async () => {
+    if (isDeleting) return
+    
+    setIsDeleting(true)
+    
+    try {
+      const token = localStorage.getItem("token")
+      
+      onDeleteForever(id)
+
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/deleteForeverNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id]
+        }
+      })
+
+      if (!response.data?.status?.success) {
+        onDeleteForever(id, true) // Revert if failed
+      }
+    } catch (error) {
+      console.error("Error deleting note forever:", error)
+      onDeleteForever(id, true) // Revert if failed
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -138,36 +207,63 @@ const NotesThird = ({ title, content, id, isArchived = false, onArchiveToggle })
             gap: 0.5,
           }}
         >
-          <IconButton size="small">
-            <NotificationsNoneIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-          </IconButton>
-          <IconButton size="small">
-            <PersonAddIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-          </IconButton>
-          <IconButton size="small">
-            <PaletteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-          </IconButton>
-          <IconButton size="small">
-            <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-          </IconButton>
+          {!isTrashed && (
+            <>
+              <IconButton size="small">
+                <NotificationsNoneIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+              </IconButton>
+              <IconButton size="small">
+                <PersonAddIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+              </IconButton>
+              <IconButton size="small">
+                <PaletteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+              </IconButton>
+              <IconButton size="small">
+                <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+              </IconButton>
+              <IconButton 
+                size="small" 
+                onClick={handleArchiveToggle}
+                disabled={isArchiving}
+              >
+                {isArchived ? (
+                  <UnarchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+                ) : (
+                  <ArchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+                )}
+              </IconButton>
+            </>
+          )}
+          <Tooltip title="Restore" arrow>
           <IconButton 
-            size="small" 
-            onClick={handleArchiveToggle}
-            disabled={isArchiving}
+            size="small"
+            onClick={handleTrashToggle}
+            disabled={isTrashing}
           >
-            {isArchived ? (
-              <UnarchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+            {isTrashed ? (
+              <RestoreFromTrashIcon sx={{ fontSize: 18, color: isTrashing ? "#bdbdbd" : "#5f6368" }} />
             ) : (
-              <ArchiveIcon sx={{ fontSize: 18, color: isArchiving ? "#bdbdbd" : "#5f6368" }} />
+              <DeleteIcon sx={{ fontSize: 18, color: isTrashing ? "#bdbdbd" : "#5f6368" }} />
+              
             )}
           </IconButton>
-          <IconButton size="small">
-            <DeleteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-          </IconButton>
+          </Tooltip>
+          {isTrashed && (
+            <Tooltip title="Delete forever" arrow>
+            <IconButton 
+              size="small"
+              onClick={handleDeleteForever}
+              disabled={isDeleting}
+              sx={{ color: isDeleting ? "#bdbdbd" : "#5f6368" }}
+            >
+              <DeleteForeverIcon sx={{ fontSize: 18, color: isDeleting ? "#bdbdbd" : "inherit" }} />
+            </IconButton>
+            </Tooltip>
+          )}
         </Box>
       )}
     </Paper>
   )
 }
 
-export default NotesThird
+export default NotesThird;
