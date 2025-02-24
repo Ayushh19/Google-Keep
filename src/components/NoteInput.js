@@ -1,6 +1,5 @@
 
 
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -83,6 +82,17 @@ const NoteInput = () => {
     }
   }
 
+  const handleColorChange = (noteId, newColor) => {
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === noteId ? { ...note, color: newColor } : note
+      )
+    );
+
+    fetchNotes();
+  };
+
+
   return (
     <>
       {expanded ? (
@@ -142,10 +152,12 @@ const NoteInput = () => {
             id={note.id} 
             title={note.title} 
             content={note.description}
+            color={note.color}
             isArchived={false}
             isTrashed={false}
             onArchiveToggle={handleArchiveToggle}
             onTrashToggle={handleTrashToggle}
+            onColorChange={handleColorChange}
           />
         ))}
       </Box>

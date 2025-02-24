@@ -35,9 +35,16 @@ const Archive = () => {
     if (!isArchived) {
       setArchivedNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
     } else {
-      // If archiving, add the note to the list
       fetchArchivedNotes()
     }
+  }
+
+  const handleColorChange = (noteId, newColor) => {
+    setArchivedNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === noteId ? { ...note, color: newColor } : note
+      )
+    )
   }
 
   return (
@@ -48,12 +55,17 @@ const Archive = () => {
           id={note.id}
           title={note.title} 
           content={note.description} 
+          color={note.color}
           isArchived={true}
+          isTrashed={false}
           onArchiveToggle={handleArchiveToggle}
+          onTrashToggle={() => {}}
+          onColorChange={handleColorChange}
         />
       ))}
     </Box>
   )
 }
 
-export default Archive
+export default Archive;
+

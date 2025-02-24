@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -47,6 +46,14 @@ const Trash = () => {
     }
   }
 
+  const handleColorChange = (noteId, newColor) => {
+    setTrashedNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === noteId ? { ...note, color: newColor } : note
+      )
+    )
+  }
+
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", marginLeft: "250px", marginTop: "62px" }}>
       {trashedNotes.map((note) => (
@@ -55,11 +62,13 @@ const Trash = () => {
           id={note.id}
           title={note.title} 
           content={note.description} 
+          color={note.color}
           isArchived={false}
           isTrashed={true}
           onTrashToggle={handleTrashToggle}
           onArchiveToggle={() => {}}
           onDeleteForever={handleDeleteForever}
+          onColorChange={handleColorChange}
         />
       ))}
     </Box>

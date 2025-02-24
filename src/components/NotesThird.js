@@ -3,7 +3,7 @@
 "use client"
 
 import { useState } from "react"
-import { Paper, Typography, IconButton, Box } from "@mui/material"
+import { Paper, Typography, IconButton, Box, Popover } from "@mui/material"
 import PushPinIcon from '@mui/icons-material/PushPin';
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
 import PersonAddIcon from "@mui/icons-material/PersonAdd"
@@ -15,14 +15,29 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import { Tooltip } from "@mui/material";
 import axios from "axios"
 
-const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false, onArchiveToggle, onTrashToggle, onDeleteForever }) => {
+const COLORS = [
+  { name: "Default", value: "#ffffff" },
+  { name: "Red", value: "#f28b82" },
+  { name: "Orange", value: "#fbbc04" },
+  { name: "Yellow", value: "#fff475" },
+  { name: "Green", value: "#ccff90" },
+  { name: "Teal", value: "#a7ffeb" },
+  { name: "Blue", value: "#cbf0f8" },
+  { name: "Purple", value: "#d7aefb" },
+  { name: "Pink", value: "#fdcfe8" },
+  { name: "Brown", value: "#e6c9a8" },
+  { name: "Gray", value: "#e8eaed" }
+]
+
+const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false, color = "#ffffff", onArchiveToggle, onTrashToggle, onDeleteForever, onColorChange }) => {
   const [hovered, setHovered] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
   const [isTrashing, setIsTrashing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isChangingColor, setIsChangingColor] = useState(false)
+  const [colorAnchorEl, setColorAnchorEl] = useState(null)
 
   const handleArchiveToggle = async () => {
     if (isArchiving) return
@@ -125,6 +140,50 @@ const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false,
     }
   }
 
+  const handleColorClick = (event) => {
+    setColorAnchorEl(event.currentTarget)
+  }
+
+  const handleColorClose = () => {
+    setColorAnchorEl(null)
+  }
+
+  const handleColorChange = async (newColor) => {
+    if (isChangingColor) return
+    
+    setIsChangingColor(true)
+    handleColorClose()
+    
+    try {
+      const token = localStorage.getItem("token")
+      const oldColor = color
+      
+      onColorChange(id, newColor)
+
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/changesColorNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          color: newColor
+        }
+      })
+
+      if (!response.data?.status?.success) {
+        onColorChange(id, oldColor)
+      }
+    } catch (error) {
+      console.error("Error changing note color:", error)
+      onColorChange(id, color)
+    } finally {
+      setIsChangingColor(false)
+    }
+  }
+
   return (
     <Paper
       elevation={3}
@@ -135,9 +194,10 @@ const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false,
         padding: 2,
         borderRadius: 2,
         position: "relative",
-        transition: "box-shadow 0.3s",
+        transition: "box-shadow 0.3s, background-color 0.3s",
         "&:hover": { boxShadow: 6 },
         overflow: "visible",
+        backgroundColor: color,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -215,8 +275,12 @@ const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false,
               <IconButton size="small">
                 <PersonAddIcon sx={{ fontSize: 18, color: "#5f6368" }} />
               </IconButton>
-              <IconButton size="small">
-                <PaletteIcon sx={{ fontSize: 18, color: "#5f6368" }} />
+              <IconButton 
+                size="small"
+                onClick={handleColorClick}
+                disabled={isChangingColor}
+              >
+                <PaletteIcon sx={{ fontSize: 18, color: isChangingColor ? "#bdbdbd" : "#5f6368" }} />
               </IconButton>
               <IconButton size="small">
                 <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
@@ -234,7 +298,6 @@ const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false,
               </IconButton>
             </>
           )}
-          <Tooltip title="Restore" arrow>
           <IconButton 
             size="small"
             onClick={handleTrashToggle}
@@ -244,24 +307,60 @@ const NotesThird = ({ title, content, id, isArchived = false, isTrashed = false,
               <RestoreFromTrashIcon sx={{ fontSize: 18, color: isTrashing ? "#bdbdbd" : "#5f6368" }} />
             ) : (
               <DeleteIcon sx={{ fontSize: 18, color: isTrashing ? "#bdbdbd" : "#5f6368" }} />
-              
             )}
           </IconButton>
-          </Tooltip>
           {isTrashed && (
-            <Tooltip title="Delete forever" arrow>
             <IconButton 
               size="small"
               onClick={handleDeleteForever}
               disabled={isDeleting}
-              sx={{ color: isDeleting ? "#bdbdbd" : "#5f6368" }}
+              sx={{ color: "#d32f2f" }}
             >
               <DeleteForeverIcon sx={{ fontSize: 18, color: isDeleting ? "#bdbdbd" : "inherit" }} />
             </IconButton>
-            </Tooltip>
           )}
         </Box>
       )}
+
+      <Popover
+        open={Boolean(colorAnchorEl)}
+        anchorEl={colorAnchorEl}
+        onClose={handleColorClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <Box sx={{ 
+          p: 1, 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 0.5, 
+          maxWidth: '220px' 
+        }}>
+          {COLORS.map((colorOption) => (
+            <IconButton
+              key={colorOption.name}
+              onClick={() => handleColorChange(colorOption.value)}
+              sx={{
+                width: 32,
+                height: 32,
+                backgroundColor: colorOption.value,
+                border: color === colorOption.value ? '2px solid #000' : '1px solid #e0e0e0',
+                '&:hover': {
+                  backgroundColor: colorOption.value,
+                  opacity: 0.8,
+                },
+              }}
+              title={colorOption.name}
+            />
+          ))}
+        </Box>
+      </Popover>
     </Paper>
   )
 }
