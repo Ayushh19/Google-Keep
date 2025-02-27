@@ -1,6 +1,5 @@
 
 
-
 "use client"
 
 import { useState } from "react"
@@ -15,19 +14,28 @@ import UndoIcon from "@mui/icons-material/Undo"
 import RedoIcon from "@mui/icons-material/Redo"
 import PushPinIcon from "@mui/icons-material/PushPin"
 
-const Notes2 = ({ addNote, setExpanded }) => {
-  const [title, setTitle] = useState("")
-  const [note, setNote] = useState("")
-  const [isPinned, setIsPinned] = useState(false)
+const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null }) => {
+  const [title, setTitle] = useState(editNote ? editNote.title : "")
+  const [note, setNote] = useState(editNote ? editNote.note : "")
+  const [isPinned, setIsPinned] = useState(editNote ? editNote.isPinned : false)
 
   const handleClose = async () => {
     if (title.trim() || note.trim()) {
       try {
-        await addNote({
-          title: title.trim(),
-          note: note.trim(),
-          isPinned,
-        })
+        if (editNote) {
+          await onEdit({
+            id: editNote.id,
+            title: title.trim(),
+            note: note.trim(),
+            isPinned,
+          })
+        } else {
+          await addNote({
+            title: title.trim(),
+            note: note.trim(),
+            isPinned,
+          })
+        }
         setTitle("")
         setNote("")
         setIsPinned(false)
@@ -120,7 +128,7 @@ const Notes2 = ({ addNote, setExpanded }) => {
           </Box>
 
           <Button onClick={handleClose} sx={{ color: "#5f6368", fontSize: "14px" }}>
-            Close
+            {editNote ? "Save" : "Close"}
           </Button>
         </Box>
       </Paper>
@@ -128,5 +136,5 @@ const Notes2 = ({ addNote, setExpanded }) => {
   )
 }
 
-export default Notes2;
+export default Notes2
 

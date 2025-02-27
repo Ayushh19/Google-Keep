@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -28,7 +27,7 @@ const NoteInput = () => {
         },
       })
       if (response.data?.data?.data) {
-        const activeNotes = response.data.data.data.filter(note => !note.isArchived && !note.isDeleted)
+        const activeNotes = response.data.data.data.filter((note) => !note.isArchived && !note.isDeleted)
         setNotes(activeNotes)
       }
     } catch (error) {
@@ -68,7 +67,7 @@ const NoteInput = () => {
 
   const handleArchiveToggle = (noteId, isArchived) => {
     if (isArchived) {
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
     } else {
       fetchNotes()
     }
@@ -76,22 +75,47 @@ const NoteInput = () => {
 
   const handleTrashToggle = (noteId, isTrashed) => {
     if (isTrashed) {
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
     } else {
       fetchNotes()
     }
   }
 
   const handleColorChange = (noteId, newColor) => {
-    setNotes(prevNotes => 
-      prevNotes.map(note => 
-        note.id === noteId ? { ...note, color: newColor } : note
+    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)))
+
+    fetchNotes()
+  }
+
+ 
+  const handleEditNote = async (noteId, editedTitle, editedContent) => {
+    // Update local state immediately
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note.id === noteId ? { ...note, title: editedTitle, description: editedContent } : note
       )
     );
-
-    fetchNotes();
+  
+    // Sync with the server
+    try {
+      const token = localStorage.getItem("token");
+      await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/updateNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteId: noteId,
+          title: editedTitle,
+          description: editedContent,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating note:", error);
+    }
   };
-
 
   return (
     <>
@@ -147,10 +171,10 @@ const NoteInput = () => {
 
       <Box sx={{ display: "flex", flexWrap: "wrap", marginLeft: "250px", marginTop: "20px" }}>
         {notes.map((note) => (
-          <NotesThird 
+          <NotesThird
             key={note.id}
-            id={note.id} 
-            title={note.title} 
+            id={note.id}
+            title={note.title}
             content={note.description}
             color={note.color}
             isArchived={false}
@@ -158,6 +182,8 @@ const NoteInput = () => {
             onArchiveToggle={handleArchiveToggle}
             onTrashToggle={handleTrashToggle}
             onColorChange={handleColorChange}
+            onEdit={handleEditNote}
+            fetchNotes={fetchNotes} 
           />
         ))}
       </Box>
@@ -165,4 +191,5 @@ const NoteInput = () => {
   )
 }
 
-export default NoteInput;
+export default NoteInput
+

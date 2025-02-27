@@ -17,10 +17,11 @@ import {
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
-  Mail as MailIcon,
-  Notifications as NotificationsIcon,
+  Refresh as RefreshIcon,
+  ViewStream as ViewStreamIcon,
   AccountCircle,
   MoreVert as MoreIcon,
+  Refresh,
 } from "@mui/icons-material";
 
 const Search = styled("div")(({ theme }) => ({
@@ -99,7 +100,7 @@ function Header({ toggleDrawer }) {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
     </Menu>
   );
 
@@ -115,20 +116,20 @@ function Header({ toggleDrawer }) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={0} color="error">
-            <MailIcon />
-          </Badge>
+        <IconButton size="large"  color="inherit">
+         
+            <RefreshIcon />
+      
         </IconButton>
-        <p>Messages</p>
+       
       </MenuItem>
       <MenuItem>
-        <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-          <Badge badgeContent={0} color="error">
-            <NotificationsIcon />
-          </Badge>
+        <IconButton size="large" color="inherit">
+        
+            <ViewStreamIcon />
+         
         </IconButton>
-        <p>Notifications</p>
+        
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
@@ -189,15 +190,15 @@ function Header({ toggleDrawer }) {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={0} color="error">
-                <MailIcon />
-              </Badge>
+            <IconButton size="large"  color="inherit">
+             
+                <RefreshIcon />
+              
             </IconButton>
-            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={0} color="error">
-                <NotificationsIcon />
-              </Badge>
+            <IconButton size="large"  color="inherit">
+              
+                <ViewStreamIcon />
+             
             </IconButton>
             <IconButton
               size="large"
