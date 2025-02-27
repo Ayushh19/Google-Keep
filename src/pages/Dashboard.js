@@ -1,29 +1,4 @@
 
-
-
-// import React, { useState } from "react";
-// import { Outlet } from "react-router-dom";
-// import PrimarySearchAppBar from "../components/Header";
-// import Sidebar from "../components/Sidebar";
-
-// const Dashboard = () => {
-//   const [drawerOpen, setDrawerOpen] = useState(false);
-
-//   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
-
-//   return (
-//     <>
-//       <PrimarySearchAppBar toggleDrawer={toggleDrawer} />
-//       <Sidebar open={drawerOpen} onClose={toggleDrawer} />
-//       <div style={{ padding: "20px" }}>
-//         <Outlet />  
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Dashboard;
-
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import PrimarySearchAppBar from "../components/Header";
@@ -31,20 +6,23 @@ import Sidebar from "../components/Sidebar";
 
 const Dashboard = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isGridView, setIsGridView] = useState(true); // State to manage grid/list view
+  const [isListView, setIsListView] = useState(false); // State for list view
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
 
-  const handleViewChange = (isGridView) => {
-    setIsGridView(isGridView);
+  // Function to toggle between grid and list views
+  const toggleView = () => {
+    setIsListView(!isListView);
   };
 
   return (
     <>
-      <PrimarySearchAppBar toggleDrawer={toggleDrawer} onViewChange={handleViewChange} />
+      {/* Pass toggleView to Header */}
+      <PrimarySearchAppBar toggleDrawer={toggleDrawer} toggleView={toggleView} />
       <Sidebar open={drawerOpen} onClose={toggleDrawer} />
       <div style={{ padding: "20px" }}>
-        <Outlet context={[isGridView]} />  
+        {/* Pass isListView to NoteInput via Outlet context */}
+        <Outlet context={{ isListView }} />
       </div>
     </>
   );

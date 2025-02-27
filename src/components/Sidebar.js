@@ -57,8 +57,10 @@ function Sidebar() {
               <ListItem
                 key={item.text}
                 sx={{
-                  borderTopRightRadius: "25px",
-                  borderBottomRightRadius: "25px",
+                  borderTopRightRadius: "50px",
+                  borderBottomRightRadius: "50px",
+                  borderTopLeftRadius: "50px",
+                  borderBottomLeftRadius: "50px",
                   mr: 1,
                   backgroundColor: isActive ? "#feefc3" : "transparent", // ✅ Highlight active button
                   "&:hover": !isActive && { backgroundColor: "#D3D3D3" },

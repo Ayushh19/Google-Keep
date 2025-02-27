@@ -1,6 +1,4 @@
 
-
-
 import React, { useState } from "react";
 import {
   AppBar,
@@ -64,7 +62,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-function Header({ toggleDrawer }) {
+function Header({ toggleDrawer, toggleView }) { // Accept toggleView as a prop
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
@@ -148,11 +146,11 @@ function Header({ toggleDrawer }) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="fixed" 
+      <AppBar
+        position="fixed"
         elevation={0}
-        sx={{ 
-          backgroundColor: "white", 
+        sx={{
+          backgroundColor: "white",
           color: "grey",
           zIndex: (theme) => theme.zIndex.drawer + 1,
           borderBottom: '1px solid #e0e0e0' // Added a subtle border instead of shadow
@@ -190,15 +188,8 @@ function Header({ toggleDrawer }) {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton size="large"  color="inherit">
-             
-                <RefreshIcon />
-              
-            </IconButton>
-            <IconButton size="large"  color="inherit">
-              
-                <ViewStreamIcon />
-             
+            <IconButton size="large" color="inherit" onClick={toggleView}>
+              <ViewStreamIcon />
             </IconButton>
             <IconButton
               size="large"

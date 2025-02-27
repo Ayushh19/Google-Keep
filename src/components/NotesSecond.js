@@ -136,5 +136,4 @@ const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null }) => {
   )
 }
 
-export default Notes2
-
+export default Notes2;

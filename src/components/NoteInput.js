@@ -1,43 +1,45 @@
 
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { TextField, Paper, IconButton, Box } from "@mui/material"
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import BrushIcon from "@mui/icons-material/Brush"
-import ImageIcon from "@mui/icons-material/Image"
-import Notes2 from "./NotesSecond"
-import NotesThird from "./NotesThird"
-import axios from "axios"
+import { useState, useEffect } from "react";
+import { TextField, Paper, IconButton, Box } from "@mui/material";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import BrushIcon from "@mui/icons-material/Brush";
+import ImageIcon from "@mui/icons-material/Image";
+import Notes2 from "./NotesSecond";
+import NotesThird from "./NotesThird";
+import axios from "axios";
+import { useOutletContext } from "react-router-dom"; // Import useOutletContext
 
 const NoteInput = () => {
-  const [expanded, setExpanded] = useState(false)
-  const [notes, setNotes] = useState([])
+  const [expanded, setExpanded] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const { isListView } = useOutletContext(); // Access isListView from context
 
   useEffect(() => {
-    fetchNotes()
-  }, [])
+    fetchNotes();
+  }, []);
 
   const fetchNotes = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get("https://fundoonotes.incubation.bridgelabz.com/api/notes/getNotesList", {
         headers: {
           Authorization: token,
         },
-      })
+      });
       if (response.data?.data?.data) {
-        const activeNotes = response.data.data.data.filter((note) => !note.isArchived && !note.isDeleted)
+        const activeNotes = response.data.data.data.filter(note => !note.isArchived && !note.isDeleted)
         setNotes(activeNotes)
       }
     } catch (error) {
-      console.error("Error fetching notes:", error)
+      console.error("Error fetching notes:", error);
     }
-  }
+  };
 
   const addNote = async (newNote) => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
 
       const noteData = {
         title: newNote.title,
@@ -45,7 +47,7 @@ const NoteInput = () => {
         isPined: newNote.isPinned,
         isArchived: false,
         color: "",
-      }
+      };
 
       const response = await axios({
         method: "post",
@@ -55,67 +57,42 @@ const NoteInput = () => {
           "Content-Type": "application/json",
         },
         data: noteData,
-      })
+      });
 
       if (response.data?.status?.success) {
-        await fetchNotes()
+        await fetchNotes();
       }
     } catch (error) {
-      console.error("Error adding note:", error?.response?.data || error.message)
+      console.error("Error adding note:", error?.response?.data || error.message);
     }
-  }
+  };
 
   const handleArchiveToggle = (noteId, isArchived) => {
     if (isArchived) {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
     } else {
-      fetchNotes()
+      fetchNotes();
     }
-  }
+  };
 
   const handleTrashToggle = (noteId, isTrashed) => {
     if (isTrashed) {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
     } else {
-      fetchNotes()
-    }
-  }
-
-  const handleColorChange = (noteId, newColor) => {
-    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)))
-
-    fetchNotes()
-  }
-
- 
-  const handleEditNote = async (noteId, editedTitle, editedContent) => {
-    // Update local state immediately
-    setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note.id === noteId ? { ...note, title: editedTitle, description: editedContent } : note
-      )
-    );
-  
-    // Sync with the server
-    try {
-      const token = localStorage.getItem("token");
-      await axios({
-        method: "post",
-        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/updateNotes",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-        data: {
-          noteId: noteId,
-          title: editedTitle,
-          description: editedContent,
-        },
-      });
-    } catch (error) {
-      console.error("Error updating note:", error);
+      fetchNotes();
     }
   };
+
+  const handleColorChange = (noteId, newColor) => {
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === noteId ? { ...note, color: newColor } : note
+      )
+    );
+
+    fetchNotes();
+  };
+
 
   return (
     <>
@@ -169,12 +146,22 @@ const NoteInput = () => {
         </Box>
       )}
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", marginLeft: "250px", marginTop: "20px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: isListView ? "nowrap" : "wrap", // Toggle between grid and list views
+          flexDirection: isListView ? "column" : "row", // Toggle between grid and list views
+          alignItems: isListView ? "center" : "flex-start", // Center notes in list view
+          marginLeft: "250px",
+          marginTop: "20px",
+          width: isListView ? "1230px" : "calc(100% - 250px)", // Adjust width for list view
+        }}
+      >
         {notes.map((note) => (
-          <NotesThird
+          <NotesThird 
             key={note.id}
-            id={note.id}
-            title={note.title}
+            id={note.id} 
+            title={note.title} 
             content={note.description}
             color={note.color}
             isArchived={false}
@@ -182,14 +169,11 @@ const NoteInput = () => {
             onArchiveToggle={handleArchiveToggle}
             onTrashToggle={handleTrashToggle}
             onColorChange={handleColorChange}
-            onEdit={handleEditNote}
-            fetchNotes={fetchNotes} 
           />
         ))}
       </Box>
     </>
-  )
-}
+  );
+};
 
-export default NoteInput
-
+export default NoteInput;

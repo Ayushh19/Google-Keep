@@ -22,6 +22,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import axios from "axios";
 import Notes2 from "./NotesSecond";
+import { useOutletContext } from "react-router-dom"; 
 
 const COLORS = [
   { name: "Default", value: "#ffffff" },
@@ -58,6 +59,7 @@ const NotesThird = ({
   const [isChangingColor, setIsChangingColor] = useState(false);
   const [colorAnchorEl, setColorAnchorEl] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { isListView } = useOutletContext();
 
   const handleArchiveToggle = async () => {
     if (isArchiving) return;
@@ -219,7 +221,7 @@ const NotesThird = ({
       <Paper
         elevation={3}
         sx={{
-          width: 200,
+         width: isListView ? "580px" : "200px",
           height: "fit-content",
           margin: 2,
           padding: 2,
