@@ -12,8 +12,9 @@ import Archive from "./components/Archive";
 import NoteInput from "./components/NoteInput"; // Import NoteInput
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthorizedRoute from "./routes/AuthorizedRoute";
-import { Delete } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import Trash from "./components/trash";
+import EditLabels from "./components/EditLabel";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route index element={<NoteInput />} />  {/* ✅ Default component for /dashboard */}
             <Route path="archive" element={<Archive />} />
             <Route path="trash" element={<Trash />} />
+            <Route path="edit-labels" element={<EditLabels />} />
           </Route>
         </Route>
 
