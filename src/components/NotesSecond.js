@@ -1,5 +1,6 @@
 
 
+
 "use client"
 
 import { useState } from "react"
@@ -14,7 +15,7 @@ import UndoIcon from "@mui/icons-material/Undo"
 import RedoIcon from "@mui/icons-material/Redo"
 import PushPinIcon from "@mui/icons-material/PushPin"
 
-const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null }) => {
+const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null, backgroundColor = "#ffffff" }) => {
   const [title, setTitle] = useState(editNote ? editNote.title : "")
   const [note, setNote] = useState(editNote ? editNote.note : "")
   const [isPinned, setIsPinned] = useState(editNote ? editNote.isPinned : false)
@@ -64,6 +65,7 @@ const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null }) => {
           width: "600px",
           borderRadius: "8px",
           boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          backgroundColor: backgroundColor,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -136,4 +138,5 @@ const Notes2 = ({ addNote, setExpanded, editNote = null, onEdit = null }) => {
   )
 }
 
-export default Notes2;
+export default Notes2
+

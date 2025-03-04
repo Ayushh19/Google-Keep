@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from "react";
@@ -63,160 +64,169 @@ const NotesThird = ({
   const { isListView } = useOutletContext();
 
   const handleArchiveToggle = async () => {
-        if (isArchiving) return;
-        setIsArchiving(true);
-        try {
-          const token = localStorage.getItem("token");
-          onArchiveToggle(id, !isArchived);
-          const response = await axios({
-            method: "post",
-            url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/archiveNotes",
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-            data: {
-              noteIdList: [id],
-              isArchived: !isArchived,
-            },
-          });
-          if (!response.data?.status?.success) {
-            onArchiveToggle(id, isArchived);
-          }
-        } catch (error) {
-          console.error("Error toggling archive status:", error);
-          onArchiveToggle(id, isArchived);
-        } finally {
-          setIsArchiving(false);
-        }
-      };
-    
-      const handleTrashToggle = async () => {
-        if (isTrashing) return;
-        setIsTrashing(true);
-        try {
-          const token = localStorage.getItem("token");
-          onTrashToggle(id, !isTrashed);
-          const response = await axios({
-            method: "post",
-            url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/trashNotes",
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-            data: {
-              noteIdList: [id],
-              isDeleted: !isTrashed,
-            },
-          });
-          if (!response.data?.status?.success) {
-            onTrashToggle(id, isTrashed);
-          }
-        } catch (error) {
-          console.error("Error toggling trash status:", error);
-          onTrashToggle(id, isTrashed);
-        } finally {
-          setIsTrashing(false);
-        }
-      };
-    
-      const handleColorClick = (event) => {
-        console.log("Color click triggered"); // Debugging log
-        event.stopPropagation(); // Stop the event from propagating to the parent Paper
-        setColorAnchorEl(event.currentTarget);
-      };
-    
-      const handleColorClose = () => {
-        setColorAnchorEl(null);
-      };
-    
-      const handleColorChange = async (newColor) => {
-        if (isChangingColor) return;
-        setIsChangingColor(true);
-        handleColorClose();
-        try {
-          const token = localStorage.getItem("token");
-          const oldColor = color;
-          onColorChange(id, newColor);
-          const response = await axios({
-            method: "post",
-            url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/changesColorNotes",
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-            data: {
-              noteIdList: [id],
-              color: newColor,
-            },
-          });
-          if (!response.data?.status?.success) {
-            onColorChange(id, oldColor);
-          }
-        } catch (error) {
-          console.error("Error changing note color:", error);
-          onColorChange(id, color);
-        } finally {
-          setIsChangingColor(false);
-        }
-      };
-    
-      const handleEditClose = () => {
-        setIsEditModalOpen(false);
-      };
-    
-      const handleEditClick = (event) => {
-        console.log("Edit click triggered"); // Debugging log
-        console.log("Event target:", event.target); // Debugging log
-        console.log("Event currentTarget:", event.currentTarget); // Debugging log
-        console.log("Closest action button:", event.currentTarget.closest('[data-action-button="true"]')); // Debugging log
-      
-        // Check if the click originated from an action button
-        if (event.currentTarget.closest('[data-action-button="true"]')) {
-          console.log("Action button clicked, skipping modal open"); // Debugging log
-          return; // Do not open the edit modal
-        }
-        setIsEditModalOpen(true); // Open the edit modal
-      };
-    
-      const handleEditSave = async (editedNote) => {
-        try {
-          await onEdit(id, editedNote.title, editedNote.note); // Call onEdit to update the note
-          handleEditClose(); // Close the modal after the note is updated
-        } catch (error) {
-          console.error("Error updating note:", error);
-        }
-      };
-    
-      const handleDeleteForever = async () => {
-        if (isDeleting) return;
-        setIsDeleting(true);
-        try {
-          const token = localStorage.getItem("token");
-          onDeleteForever(id);
-          const response = await axios({
-            method: "delete",
-            url: `https://fundoonotes.incubation.bridgelabz.com/api/notes/deleteForeverNotes?noteIdList=${id}`,
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          });
-          if (!response.data?.status?.success) {
-            // If the API call failed, revert the local state
-            // You might need to adjust this based on how onDeleteForever works
-            console.error(
-              "Failed to delete forever. Implement rollback logic if needed."
-            );
-          }
-        } catch (error) {
-          console.error("Error deleting note forever:", error);
-          // Implement rollback logic if needed
-        } finally {
-          setIsDeleting(false);
-        }
-      };
+    if (isArchiving) return;
+    setIsArchiving(true);
+    try {
+      const token = localStorage.getItem("token");
+      onArchiveToggle(id, !isArchived);
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/archiveNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          isArchived: !isArchived,
+        },
+      });
+      if (!response.data?.status?.success) {
+        onArchiveToggle(id, isArchived);
+      }
+    } catch (error) {
+      console.error("Error toggling archive status:", error);
+      onArchiveToggle(id, isArchived);
+    } finally {
+      setIsArchiving(false);
+    }
+  };
 
+  const handleTrashToggle = async () => {
+    if (isTrashing) return;
+    setIsTrashing(true);
+    try {
+      const token = localStorage.getItem("token");
+      onTrashToggle(id, !isTrashed);
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/trashNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          isDeleted: !isTrashed,
+        },
+      });
+      if (!response.data?.status?.success) {
+        onTrashToggle(id, isTrashed);
+      }
+    } catch (error) {
+      console.error("Error toggling trash status:", error);
+      onTrashToggle(id, isTrashed);
+    } finally {
+      setIsTrashing(false);
+    }
+  };
+
+  const handleDeleteForever = async () => {
+    if (isDeleting) return
+    
+    setIsDeleting(true)
+    
+    try {
+      const token = localStorage.getItem("token")
+      
+      onDeleteForever(id)
+
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/deleteForeverNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id]
+        }
+      })
+
+      if (!response.data?.status?.success) {
+        onDeleteForever(id, true) // Revert if failed
+      }
+    } catch (error) {
+      console.error("Error deleting note forever:", error)
+      onDeleteForever(id, true) // Revert if failed
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+
+  const handleColorClick = (event) => {
+    console.log("Color click triggered"); // Debugging log
+    event.stopPropagation(); // Stop the event from propagating to the parent Paper
+    setColorAnchorEl(event.currentTarget);
+  };
+
+  const handleColorClose = () => {
+    setColorAnchorEl(null);
+  };
+
+  const handleColorChange = async (newColor) => {
+    if (isChangingColor) return;
+    setIsChangingColor(true);
+    handleColorClose();
+    try {
+      const token = localStorage.getItem("token");
+      const oldColor = color;
+      onColorChange(id, newColor);
+      const response = await axios({
+        method: "post",
+        url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/changesColorNotes",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        data: {
+          noteIdList: [id],
+          color: newColor,
+        },
+      });
+      if (!response.data?.status?.success) {
+        onColorChange(id, oldColor);
+      }
+    } catch (error) {
+      console.error("Error changing note color:", error);
+      onColorChange(id, color);
+    } finally {
+      setIsChangingColor(false);
+    }
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditClick = (event) => {
+    console.log("Edit click triggered"); // Debugging log
+    console.log("Event target:", event.target); // Debugging log
+    console.log("Event currentTarget:", event.currentTarget); // Debugging log
+    console.log(
+      "Closest action button:",
+      event.currentTarget.closest('[data-action-button="true"]')
+    ); // Debugging log
+
+    // Check if the click originated from an action button
+    if (event.currentTarget.closest('[data-action-button="true"]')) {
+      console.log("Action button clicked, skipping modal open"); // Debugging log
+      return; // Do not open the edit modal
+    }
+    setIsEditModalOpen(true); // Open the edit modal
+  };
+
+  const handleEditSave = async (editedNote) => {
+    try {
+      await onEdit(id, editedNote.title, editedNote.note); // Call onEdit to update the note
+      handleEditClose(); // Close the modal after the note is updated
+    } catch (error) {
+      console.error("Error updating note:", error);
+    }
+  };
+
+  
   return (
     <>
       <Paper
@@ -265,7 +275,6 @@ const NotesThird = ({
               <PushPinIcon sx={{ fontSize: 20, color: "#5f6368" }} />
             </IconButton>
           </>
-          // NotesThird.js (continued)
         )}
 
         <Box sx={{ mt: hovered ? 4 : 0 }}>
@@ -459,6 +468,7 @@ const NotesThird = ({
             }}
             onEdit={handleEditSave}
             setExpanded={handleEditClose}
+            backgroundColor={color}
           />
         </div>
       </Modal>
