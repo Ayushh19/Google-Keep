@@ -112,9 +112,11 @@ const NoteInput = () => {
     }
   };
 
-    const handleColorChange = (noteId, newColor) => {
-        setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)));
-      };
+  const handleColorChange = (noteId, newColor) => {
+    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)));
+  };
+  
+  
 
   const handleLabelChange = (noteId, newLabels) => {
     setNotes((prevNotes) => 

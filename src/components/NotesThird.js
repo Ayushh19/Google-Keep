@@ -794,11 +794,19 @@ const NotesThird = ({
   const [newLabelText, setNewLabelText] = useState("")
   const [isAddingLabel, setIsAddingLabel] = useState(false)
   const { isListView } = useOutletContext()
+  const [localColor, setLocalColor] = useState(color);
+
+
+   // Update local color when prop changes
+   if (color !== localColor) {
+    setLocalColor(color);
+  }
+
 
   // Ensure selectedLabels stays in sync with noteLabels from props
-  useEffect(() => {
-    setSelectedLabels(noteLabels || [])
-  }, [noteLabels])
+  // useEffect(() => {
+  //   setSelectedLabels(noteLabels || [])
+  // })
 
   const handleAddLabel = async () => {
     if (!newLabelText.trim()) return
@@ -1025,22 +1033,62 @@ const NotesThird = ({
   }
 
   const handleColorChange = async (newColor, event) => {
-    if (event) {
-      event.stopPropagation()
-    }
-
-    if (isChangingColor) return
-    setIsChangingColor(true)
-    handleColorClose()
-
+    if (event) event.stopPropagation();
+    if (isChangingColor) return;
+  
+    setIsChangingColor(true);
+    handleColorClose();
+  
+    // Store previous color in case of failure
+    
+  
+    // ✅ Update UI state immediately
+    setLocalColor(newColor);
+    onColorChange(id, newColor); // Update parent state
+  
     try {
-      await onColorChange(id, newColor)
+      const token = localStorage.getItem("token");
+  
+      // ✅ Send API request
+      const response = await axios.post(
+        "https://fundoonotes.incubation.bridgelabz.com/api/notes/changesColorNotes",
+        {
+          noteIdList: [id],
+          color: newColor,
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+     
+  
+      if (!response.data?.status?.success) {
+       
+      }
+  
+      // ✅ Ensure UI state matches backend update
+      setLocalColor(newColor);  // Ensure UI keeps the new color
+      onColorChange(id, newColor); 
+  
     } catch (error) {
-      console.error("Error changing note color:", error)
+      console.error("Error changing note color:", error);
+  
+      // ❌ Revert only if API fails
+     
+      
+  
     } finally {
-      setIsChangingColor(false)
+      setIsChangingColor(false);
     }
-  }
+  };
+  
+  
+  
+  
 
   const handleMoreMenuOpen = (event) => {
     event.stopPropagation()
@@ -1103,7 +1151,7 @@ const NotesThird = ({
           transition: "all 0.3s ease",
           "&:hover": { boxShadow: 6 },
           overflow: "visible",
-          backgroundColor: color,
+          backgroundColor: localColor,
           cursor: "pointer",
         }}
         onMouseEnter={() => setHovered(true)}
@@ -1297,7 +1345,7 @@ const NotesThird = ({
                   width: 32,
                   height: 32,
                   backgroundColor: colorOption.value,
-                  border: color === colorOption.value ? "2px solid #000" : "1px solid #e0e0e0",
+                  border: localColor === colorOption.value ? "2px solid #000" : "1px solid #e0e0e0",
                   "&:hover": {
                     backgroundColor: colorOption.value,
                     opacity: 0.8,
@@ -1388,7 +1436,7 @@ const NotesThird = ({
             }}
             onEdit={handleEditSave}
             setExpanded={handleEditClose}
-            backgroundColor={color}
+            backgroundColor={localColor}
           />
         </div>
       </Modal>
