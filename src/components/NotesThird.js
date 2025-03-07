@@ -21,6 +21,7 @@ import {
   Button,
   TextField,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -35,6 +36,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LabelIcon from "@mui/icons-material/Label";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import Notes2 from "./NotesSecond";
 import { useOutletContext } from "react-router-dom";
@@ -83,6 +85,7 @@ const NotesThird = ({
   const [selectedLabels, setSelectedLabels] = useState(noteLabels || []);
   const [newLabelText, setNewLabelText] = useState("");
   const [isAddingLabel, setIsAddingLabel] = useState(false);
+  const [isRemovingLabel, setIsRemovingLabel] = useState(false);
   const { isListView } = useOutletContext();
   const [localColor, setLocalColor] = useState(color);
 
@@ -138,6 +141,46 @@ const NotesThird = ({
       console.error("Error adding label:", error);
     } finally {
       setIsAddingLabel(false);
+    }
+  };
+
+  const handleRemoveLabel = async (labelId, event) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (isRemovingLabel) return;
+    setIsRemovingLabel(true);
+
+    // Immediately update UI
+    const updatedLabels = selectedLabels.filter((label) => label.id !== labelId);
+    setSelectedLabels(updatedLabels);
+    onLabelChange(id, updatedLabels);
+
+    try {
+      const token = localStorage.getItem("token");
+      
+      const response = await axios({
+        method: "post",
+        url: `https://fundoonotes.incubation.bridgelabz.com/api/notes/${id}/addLabelToNotes/${labelId}/remove`,
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.data?.status?.success) {
+        // Revert UI if API call fails
+        // setSelectedLabels(selectedLabels);
+        // onLabelChange(id, selectedLabels);
+      }
+    } catch (error) {
+      console.error("Error removing label:", error);
+      // Revert UI on error
+      // setSelectedLabels(selectedLabels);
+      // onLabelChange(id, selectedLabels);
+    } finally {
+      setIsRemovingLabel(false);
     }
   };
 
@@ -475,10 +518,35 @@ const NotesThird = ({
                     borderRadius: "4px",
                     padding: "2px 8px",
                     fontSize: "12px",
+                    "&:hover": {
+                      "& .remove-icon": {
+                        opacity: 1,
+                      },
+                    },
                   }}
                 >
                   <LabelIcon sx={{ fontSize: 12, mr: 0.5 }} />
                   {label.label}
+                  <Tooltip title="Remove label">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleRemoveLabel(label.id, e)}
+                      disabled={isRemovingLabel}
+                      className="remove-icon"
+                      data-action-button="true"
+                      sx={{
+                        padding: 0,
+                        ml: 0.5,
+                        opacity: 0,
+                        transition: "opacity 0.2s",
+                        "&:hover": {
+                          backgroundColor: "rgba(0,0,0,0.04)",
+                        },
+                      }}
+                    >
+                      <CloseIcon sx={{ fontSize: 12 }} />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
               ))}
             </Box>
