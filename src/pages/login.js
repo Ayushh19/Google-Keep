@@ -114,14 +114,14 @@ const Login = () => {
           </Typography>
         )}
 
-        <Button
+        {/* <Button
           component={RouterLink}
           to="/forgot-password"
           color="primary"
           sx={{ display: "block", textAlign: "left", mb: 2 }}
         >
           Forgot Password?
-        </Button>
+        </Button> */}
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Button component={RouterLink} to="/signup" color="primary">

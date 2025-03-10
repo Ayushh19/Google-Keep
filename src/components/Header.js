@@ -1,29 +1,20 @@
 
 
+"use client"
 
 // Header.js
-import React, { useState } from "react";
-import {
-  AppBar,
-  Box,
-  Toolbar,
-  IconButton,
-  Typography,
-  Badge,
-  MenuItem,
-  Menu,
-  InputBase,
-  styled,
-} from "@mui/material";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { AppBar, Box, Toolbar, IconButton, Typography, MenuItem, Menu, InputBase, styled } from "@mui/material"
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
   Refresh as RefreshIcon,
   ViewStream as ViewStreamIcon,
+  ViewList as ViewListIcon,
   AccountCircle,
   MoreVert as MoreIcon,
-  Refresh,
-} from "@mui/icons-material";
+} from "@mui/icons-material"
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -39,7 +30,7 @@ const Search = styled("div")(({ theme }) => ({
     marginLeft: theme.spacing(8),
     width: "50%",
   },
-}));
+}))
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
@@ -49,7 +40,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-}));
+}))
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
@@ -63,40 +54,58 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
       width: "20ch",
     },
   },
-}));
+}))
 
-function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+function Header({ toggleDrawer, toggleView, onSearch }) {
+  // Add onSearch prop
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("") // State for search query
+  const [isStreamView, setIsStreamView] = useState(true) // Add this line to track view state
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl)
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
+    setMobileMoreAnchorEl(null)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
+    setAnchorEl(null)
+    handleMobileMenuClose()
+  }
 
   const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+    setMobileMoreAnchorEl(event.currentTarget)
+  }
 
   const handleSearchChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    onSearch(query); // Pass the search query to the parent component
-  };
+    const query = event.target.value
+    setSearchQuery(query)
+    onSearch(query) // Pass the search query to the parent component
+  }
 
-  const menuId = "primary-search-account-menu";
+  const navigate = useNavigate() // Initialize navigate
+
+  const handleLogoutClose = () => {
+    localStorage.removeItem("token")
+
+    setAnchorEl(null)
+    handleMobileMenuClose()
+
+    navigate("/login")
+  }
+
+  const handleViewToggle = () => {
+    setIsStreamView(!isStreamView)
+    toggleView() // Still call the original toggleView function
+  }
+
+  const menuId = "primary-search-account-menu"
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -107,12 +116,12 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+      
+      <MenuItem onClick={handleLogoutClose}>Logout</MenuItem>
     </Menu>
-  );
+  )
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
+  const mobileMenuId = "primary-search-account-menu-mobile"
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -123,6 +132,11 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
+      <MenuItem onClick={handleViewToggle}>
+        <IconButton size="large" color="inherit">
+          {isStreamView ? <ViewStreamIcon /> : <ViewListIcon />}
+        </IconButton>
+      </MenuItem>
       <MenuItem>
         <IconButton size="large" color="inherit">
           <RefreshIcon />
@@ -146,7 +160,7 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
         <p>Profile</p>
       </MenuItem>
     </Menu>
-  );
+  )
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -157,7 +171,7 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
           backgroundColor: "white",
           color: "grey",
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          borderBottom: '1px solid #e0e0e0' // Added a subtle border instead of shadow
+          borderBottom: "1px solid #e0e0e0", // Added a subtle border instead of shadow
         }}
       >
         <Toolbar>
@@ -197,8 +211,8 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton size="large" color="inherit" onClick={toggleView}>
-              <ViewStreamIcon />
+            <IconButton size="large" color="inherit" onClick={handleViewToggle}>
+              {isStreamView ? <ViewStreamIcon /> : <ViewListIcon />}
             </IconButton>
             <IconButton
               size="large"
@@ -230,7 +244,8 @@ function Header({ toggleDrawer, toggleView, onSearch }) { // Add onSearch prop
       {renderMobileMenu}
       {renderMenu}
     </Box>
-  );
+  )
 }
 
-export default Header;
+export default Header
+

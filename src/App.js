@@ -12,7 +12,6 @@ import Archive from "./components/Archive";
 import NoteInput from "./components/NoteInput"; // Import NoteInput
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthorizedRoute from "./routes/AuthorizedRoute";
-import { Delete, Edit } from "@mui/icons-material";
 import Trash from "./components/trash";
 import EditLabels from "./components/EditLabel";
 
