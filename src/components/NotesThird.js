@@ -1,8 +1,9 @@
 
 
-"use client";
 
-import { useState } from "react";
+"use client"
+
+import { useState, useEffect } from "react"
 import {
   Paper,
   Typography,
@@ -22,24 +23,26 @@ import {
   TextField,
   CircularProgress,
   Tooltip,
-} from "@mui/material";
-import PushPinIcon from "@mui/icons-material/PushPin";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import PaletteIcon from "@mui/icons-material/Palette";
-import ImageIcon from "@mui/icons-material/Image";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import UnarchiveIcon from "@mui/icons-material/Unarchive";
-import DeleteIcon from "@mui/icons-material/Delete";
-import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import LabelIcon from "@mui/icons-material/Label";
-import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
-import Notes2 from "./NotesSecond";
-import { useOutletContext } from "react-router-dom";
+} from "@mui/material"
+import PushPinIcon from "@mui/icons-material/PushPin"
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive"
+import PersonAddIcon from "@mui/icons-material/PersonAdd"
+import PaletteIcon from "@mui/icons-material/Palette"
+import ImageIcon from "@mui/icons-material/Image"
+import ArchiveIcon from "@mui/icons-material/Archive"
+import UnarchiveIcon from "@mui/icons-material/Unarchive"
+import DeleteIcon from "@mui/icons-material/Delete"
+import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash"
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import MoreVertIcon from "@mui/icons-material/MoreVert"
+import LabelIcon from "@mui/icons-material/Label"
+import CloseIcon from "@mui/icons-material/Close"
+import axios from "axios"
+import Notes2 from "./NotesSecond"
+import ReminderDialog from "./ReminderDialog"
+import { useOutletContext } from "react-router-dom"
 
 const COLORS = [
   { name: "Default", value: "#ffffff" },
@@ -53,7 +56,7 @@ const COLORS = [
   { name: "Pink", value: "#fdcfe8" },
   { name: "Brown", value: "#e6c9a8" },
   { name: "Gray", value: "#e8eaed" },
-];
+]
 
 const NotesThird = ({
   title,
@@ -63,6 +66,7 @@ const NotesThird = ({
   isTrashed = false,
   color = "#ffffff",
   noteLabels = [],
+  reminder = null,
   onArchiveToggle,
   onTrashToggle,
   onDeleteForever,
@@ -72,33 +76,40 @@ const NotesThird = ({
   fetchNotes,
   availableLabels = [],
 }) => {
-  const [hovered, setHovered] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
-  const [isTrashing, setIsTrashing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isChangingColor, setIsChangingColor] = useState(false);
-  const [isChangingLabels, setIsChangingLabels] = useState(false);
-  const [colorAnchorEl, setColorAnchorEl] = useState(null);
-  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false);
-  const [selectedLabels, setSelectedLabels] = useState(noteLabels || []);
-  const [newLabelText, setNewLabelText] = useState("");
-  const [isAddingLabel, setIsAddingLabel] = useState(false);
-  const [isRemovingLabel, setIsRemovingLabel] = useState(false);
-  const { isListView } = useOutletContext();
-  const [localColor, setLocalColor] = useState(color);
+  const [hovered, setHovered] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
+  const [isTrashing, setIsTrashing] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isChangingColor, setIsChangingColor] = useState(false)
+  const [isChangingLabels, setIsChangingLabels] = useState(false)
+  const [colorAnchorEl, setColorAnchorEl] = useState(null)
+  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false)
+  const [selectedLabels, setSelectedLabels] = useState(noteLabels || [])
+  const [newLabelText, setNewLabelText] = useState("")
+  const [isAddingLabel, setIsAddingLabel] = useState(false)
+  const [isRemovingLabel, setIsRemovingLabel] = useState(false)
+  const [hasReminder, setHasReminder] = useState(Boolean(reminder))
+  const [isTogglingReminder, setIsTogglingReminder] = useState(false)
+  const { isListView } = useOutletContext()
+  const [localColor, setLocalColor] = useState(color)
+  const [isReminderDialogOpen, setIsReminderDialogOpen] = useState(false)
+
+  useEffect(() => {
+    setHasReminder(Boolean(reminder))
+  }, [reminder])
 
   if (color !== localColor) {
-    setLocalColor(color);
+    setLocalColor(color)
   }
 
   const handleAddLabel = async () => {
-    if (!newLabelText.trim()) return;
+    if (!newLabelText.trim()) return
 
-    setIsAddingLabel(true);
+    setIsAddingLabel(true)
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
       const response = await axios({
         method: "post",
         url: "https://fundoonotes.incubation.bridgelabz.com/api/noteLabels",
@@ -111,10 +122,10 @@ const NotesThird = ({
           isDeleted: false,
           userId: localStorage.getItem("userId"),
         },
-      });
+      })
 
       if (response.data?.status?.success) {
-        setNewLabelText("");
+        setNewLabelText("")
 
         const labelsResponse = await axios.get(
           "https://fundoonotes.incubation.bridgelabz.com/api/noteLabels/getNoteLabelList",
@@ -122,44 +133,41 @@ const NotesThird = ({
             headers: {
               Authorization: token,
             },
-          }
-        );
+          },
+        )
 
         if (labelsResponse.data?.data?.details) {
-          const newLabel = labelsResponse.data.data.details.find(
-            (label) => label.label === newLabelText.trim()
-          );
+          const newLabel = labelsResponse.data.data.details.find((label) => label.label === newLabelText.trim())
 
           if (newLabel) {
-            setSelectedLabels((prev) => [...prev, newLabel]);
+            setSelectedLabels((prev) => [...prev, newLabel])
           }
         }
 
-        fetchNotes();
+        fetchNotes()
       }
     } catch (error) {
-      console.error("Error adding label:", error);
+      console.error("Error adding label:", error)
     } finally {
-      setIsAddingLabel(false);
+      setIsAddingLabel(false)
     }
-  };
+  }
 
   const handleRemoveLabel = async (labelId, event) => {
     if (event) {
-      event.stopPropagation();
+      event.stopPropagation()
     }
-    
-    if (isRemovingLabel) return;
-    setIsRemovingLabel(true);
 
-    // Immediately update UI
-    const updatedLabels = selectedLabels.filter((label) => label.id !== labelId);
-    setSelectedLabels(updatedLabels);
-    onLabelChange(id, updatedLabels);
+    if (isRemovingLabel) return
+    setIsRemovingLabel(true)
+
+    const updatedLabels = selectedLabels.filter((label) => label.id !== labelId)
+    setSelectedLabels(updatedLabels)
+    onLabelChange(id, updatedLabels)
 
     try {
-      const token = localStorage.getItem("token");
-      
+      const token = localStorage.getItem("token")
+
       const response = await axios({
         method: "post",
         url: `https://fundoonotes.incubation.bridgelabz.com/api/notes/${id}/addLabelToNotes/${labelId}/remove`,
@@ -167,51 +175,48 @@ const NotesThird = ({
           Authorization: token,
           "Content-Type": "application/json",
         },
-      });
+      })
 
       if (!response.data?.status?.success) {
-        // Revert UI if API call fails
-        // setSelectedLabels(selectedLabels);
-        // onLabelChange(id, selectedLabels);
+        // setSelectedLabels(selectedLabels)
+        // onLabelChange(id, selectedLabels)
       }
     } catch (error) {
-      console.error("Error removing label:", error);
-      // Revert UI on error
-      // setSelectedLabels(selectedLabels);
-      // onLabelChange(id, selectedLabels);
+      console.error("Error removing label:", error)
+      setSelectedLabels(selectedLabels)
+      onLabelChange(id, selectedLabels)
     } finally {
-      setIsRemovingLabel(false);
+      setIsRemovingLabel(false)
     }
-  };
+  }
 
   const handleLabelToggle = (labelId) => {
-    const currentIndex = selectedLabels.findIndex((label) => label.id === labelId);
-    const newSelectedLabels = [...selectedLabels];
+    const currentIndex = selectedLabels.findIndex((label) => label.id === labelId)
+    const newSelectedLabels = [...selectedLabels]
 
     if (currentIndex === -1) {
-      const labelToAdd = availableLabels.find((label) => label.id === labelId);
+      const labelToAdd = availableLabels.find((label) => label.id === labelId)
       if (labelToAdd) {
-        newSelectedLabels.push(labelToAdd);
+        newSelectedLabels.push(labelToAdd)
       }
     } else {
-      newSelectedLabels.splice(currentIndex, 1);
+      newSelectedLabels.splice(currentIndex, 1)
     }
 
-    setSelectedLabels(newSelectedLabels);
-  };
+    setSelectedLabels(newSelectedLabels)
+  }
 
   const handleSaveLabels = async (event) => {
     if (event) {
-      event.stopPropagation();
+      event.stopPropagation()
     }
 
-    if (isChangingLabels) return;
-    setIsChangingLabels(true);
+    if (isChangingLabels) return
+    setIsChangingLabels(true)
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
-      // Add each label individually using the correct endpoint
       for (const label of selectedLabels) {
         await axios({
           method: "post",
@@ -220,37 +225,35 @@ const NotesThird = ({
             Authorization: token,
             "Content-Type": "application/json",
           },
-        });
+        })
       }
 
-      // Update UI state
-      onLabelChange(id, selectedLabels);
-      
-      // Refresh notes to get the latest data
-      await fetchNotes();
+      onLabelChange(id, selectedLabels)
+
+      await fetchNotes()
     } catch (error) {
-      console.error("Error changing note labels:", error);
-      setSelectedLabels(noteLabels || []); // Revert on error
+      console.error("Error changing note labels:", error)
+      setSelectedLabels(noteLabels || [])
     } finally {
-      setIsChangingLabels(false);
-      handleLabelDialogClose();
+      setIsChangingLabels(false)
+      handleLabelDialogClose()
     }
-  };
+  }
 
   const handleLabelDialogClose = (event) => {
     if (event) {
-      event.stopPropagation();
+      event.stopPropagation()
     }
-    setIsLabelDialogOpen(false);
-  };
+    setIsLabelDialogOpen(false)
+  }
 
   const handleArchiveToggle = async (event) => {
-    event.stopPropagation();
-    if (isArchiving) return;
-    setIsArchiving(true);
+    event.stopPropagation()
+    if (isArchiving) return
+    setIsArchiving(true)
     try {
-      const token = localStorage.getItem("token");
-      onArchiveToggle(id, !isArchived);
+      const token = localStorage.getItem("token")
+      onArchiveToggle(id, !isArchived)
       const response = await axios({
         method: "post",
         url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/archiveNotes",
@@ -262,25 +265,25 @@ const NotesThird = ({
           noteIdList: [id],
           isArchived: !isArchived,
         },
-      });
+      })
       if (!response.data?.status?.success) {
-        onArchiveToggle(id, isArchived);
+        onArchiveToggle(id, isArchived)
       }
     } catch (error) {
-      console.error("Error toggling archive status:", error);
-      onArchiveToggle(id, isArchived);
+      console.error("Error toggling archive status:", error)
+      onArchiveToggle(id, isArchived)
     } finally {
-      setIsArchiving(false);
+      setIsArchiving(false)
     }
-  };
+  }
 
   const handleTrashToggle = async (event) => {
-    event.stopPropagation();
-    if (isTrashing) return;
-    setIsTrashing(true);
+    event.stopPropagation()
+    if (isTrashing) return
+    setIsTrashing(true)
     try {
-      const token = localStorage.getItem("token");
-      onTrashToggle(id, !isTrashed);
+      const token = localStorage.getItem("token")
+      onTrashToggle(id, !isTrashed)
       const response = await axios({
         method: "post",
         url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/trashNotes",
@@ -292,28 +295,28 @@ const NotesThird = ({
           noteIdList: [id],
           isDeleted: !isTrashed,
         },
-      });
+      })
       if (!response.data?.status?.success) {
-        onTrashToggle(id, isTrashed);
+        onTrashToggle(id, isTrashed)
       }
     } catch (error) {
-      console.error("Error toggling trash status:", error);
-      onTrashToggle(id, isTrashed);
+      console.error("Error toggling trash status:", error)
+      onTrashToggle(id, isTrashed)
     } finally {
-      setIsTrashing(false);
+      setIsTrashing(false)
     }
-  };
+  }
 
   const handleDeleteForever = async (event) => {
-    event.stopPropagation();
-    if (isDeleting) return;
+    event.stopPropagation()
+    if (isDeleting) return
 
-    setIsDeleting(true);
+    setIsDeleting(true)
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
-      onDeleteForever(id);
+      onDeleteForever(id)
 
       const response = await axios({
         method: "post",
@@ -325,40 +328,40 @@ const NotesThird = ({
         data: {
           noteIdList: [id],
         },
-      });
+      })
 
       if (!response.data?.status?.success) {
-        onDeleteForever(id, true);
+        onDeleteForever(id, true)
       }
     } catch (error) {
-      console.error("Error deleting note forever:", error);
-      onDeleteForever(id, true);
+      console.error("Error deleting note forever:", error)
+      onDeleteForever(id, true)
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  };
+  }
 
   const handleColorClick = (event) => {
-    event.stopPropagation();
-    setColorAnchorEl(event.currentTarget);
-  };
+    event.stopPropagation()
+    setColorAnchorEl(event.currentTarget)
+  }
 
   const handleColorClose = () => {
-    setColorAnchorEl(null);
-  };
+    setColorAnchorEl(null)
+  }
 
   const handleColorChange = async (newColor, event) => {
-    if (event) event.stopPropagation();
-    if (isChangingColor) return;
+    if (event) event.stopPropagation()
+    if (isChangingColor) return
 
-    setIsChangingColor(true);
-    handleColorClose();
+    setIsChangingColor(true)
+    handleColorClose()
 
-    setLocalColor(newColor);
-    onColorChange(id, newColor);
+    setLocalColor(newColor)
+    onColorChange(id, newColor)
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
       const response = await axios.post(
         "https://fundoonotes.incubation.bridgelabz.com/api/notes/changesColorNotes",
@@ -371,73 +374,173 @@ const NotesThird = ({
             Authorization: token,
             "Content-Type": "application/json",
           },
-        }
-      );
+        },
+      )
 
       if (!response.data?.status?.success) {
+        // setLocalColor(color);
+        // onColorChange(id, color);
       }
-
-      setLocalColor(newColor);
-      onColorChange(id, newColor);
     } catch (error) {
-      console.error("Error changing note color:", error);
+      console.error("Error changing note color:", error)
+      setLocalColor(color)
+      onColorChange(id, color)
     } finally {
-      setIsChangingColor(false);
+      setIsChangingColor(false)
     }
-  };
+  }
 
   const handleMoreMenuOpen = (event) => {
-    event.stopPropagation();
-    setMoreMenuAnchorEl(event.currentTarget);
-  };
+    event.stopPropagation()
+    setMoreMenuAnchorEl(event.currentTarget)
+  }
 
   const handleMoreMenuClose = (event) => {
     if (event) {
-      event.stopPropagation();
+      event.stopPropagation()
     }
-    setMoreMenuAnchorEl(null);
-  };
+    setMoreMenuAnchorEl(null)
+  }
 
   const handleLabelDialogOpen = (event) => {
     if (event) {
-      event.stopPropagation();
+      event.stopPropagation()
     }
-    handleMoreMenuClose(event);
-    setSelectedLabels(noteLabels || []);
-    setIsLabelDialogOpen(true);
-  };
+    handleMoreMenuClose(event)
+    setSelectedLabels(noteLabels || [])
+    setIsLabelDialogOpen(true)
+  }
 
   const handleEditClose = () => {
-    setIsEditModalOpen(false);
-  };
+    setIsEditModalOpen(false)
+  }
 
   const handleEditClick = (event) => {
     if (!event.target.closest('[data-action-button="true"]')) {
-      setIsEditModalOpen(true);
+      setIsEditModalOpen(true)
     }
-  };
+  }
 
   const handleEditSave = async (editedNote) => {
     try {
-      await onEdit(id, editedNote.title, editedNote.note);
-      handleEditClose();
+      // Update the note content
+      await onEdit(id, editedNote.title, editedNote.note)
+
+      // Update color if changed
+      if (editedNote.color && editedNote.color !== localColor) {
+        setLocalColor(editedNote.color)
+        onColorChange(id, editedNote.color)
+      }
+
+      // Update archive status if changed
+      if (editedNote.isArchived !== isArchived) {
+        onArchiveToggle(id, editedNote.isArchived)
+      }
+
+      handleEditClose()
+
+      // Refresh notes to get the latest data
+      await fetchNotes()
     } catch (error) {
-      console.error("Error updating note:", error);
+      console.error("Error updating note:", error)
     }
-  };
+  }
 
   const handleActionClick = (event) => {
-    event.stopPropagation();
-  };
+    event.stopPropagation()
+  }
+
+  const handleAddReminder = async (date, event) => {
+    if (event) {
+      event.stopPropagation()
+    }
+    if (isTogglingReminder) return
+
+    setIsTogglingReminder(true)
+    setHasReminder(true)
+
+    try {
+      const token = localStorage.getItem("token")
+
+      const response = await axios.post(
+        "https://fundoonotes.incubation.bridgelabz.com/api/notes/addUpdateReminderNotes",
+        {
+          noteIdList: [id],
+          reminder: date.toISOString(),
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        },
+      )
+
+      if (!response.data?.status?.success) {
+        // setHasReminder(false);
+      } else {
+        await fetchNotes()
+      }
+    } catch (error) {
+      console.error("Error adding reminder:", error)
+      setHasReminder(false)
+    } finally {
+      setIsTogglingReminder(false)
+    }
+  }
+
+  const handleToggleReminder = async (event) => {
+    event.stopPropagation()
+    if (isTogglingReminder) return
+
+    if (hasReminder) {
+      // Remove reminder
+      setIsTogglingReminder(true)
+      setHasReminder(false)
+
+      try {
+        const token = localStorage.getItem("token")
+        const response = await axios.post(
+          "https://fundoonotes.incubation.bridgelabz.com/api/notes/removeReminderNotes",
+          { noteIdList: [id] },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          },
+        )
+
+        if (!response.data?.status?.success) {
+          // setHasReminder(true);
+          fetchNotes()
+        } else {
+          await fetchNotes()
+        }
+      } catch (error) {
+        console.error("Error removing reminder:", error)
+        setHasReminder(true)
+      } finally {
+        setIsTogglingReminder(false)
+      }
+    } else {
+      // Open reminder dialog
+      setIsReminderDialogOpen(true)
+    }
+  }
 
   return (
     <>
       <Paper
         elevation={3}
         sx={{
-          width: isListView ? "580px" : "200px",
+          width: {
+            xs: "100%",
+            sm: isListView ? "90%" : "45%",
+            md: isListView ? "580px" : "200px",
+          },
           height: "fit-content",
-          margin: 2,
+          margin: { xs: 1, sm: 1, md: 2 },
           padding: 2,
           paddingTop: 4,
           paddingBottom: 5,
@@ -461,24 +564,14 @@ const NotesThird = ({
             right: 8,
             display: "flex",
             justifyContent: "space-between",
-            opacity: hovered ? 1 : 0,
+            opacity: { xs: 1, sm: 1, md: hovered ? 1 : 0 },
             transition: "opacity 0.2s ease-in-out",
           }}
         >
-          <IconButton
-            size="small"
-            sx={{ padding: 0 }}
-            data-action-button="true"
-            onClick={handleActionClick}
-          >
+          <IconButton size="small" sx={{ padding: 0 }} data-action-button="true" onClick={handleActionClick}>
             <CheckCircleIcon sx={{ fontSize: 20, color: "#5f6368" }} />
           </IconButton>
-          <IconButton
-            size="small"
-            sx={{ padding: 0 }}
-            data-action-button="true"
-            onClick={handleActionClick}
-          >
+          <IconButton size="small" sx={{ padding: 0 }} data-action-button="true" onClick={handleActionClick}>
             <PushPinIcon sx={{ fontSize: 20, color: "#5f6368" }} />
           </IconButton>
         </Box>
@@ -507,7 +600,7 @@ const NotesThird = ({
           </Typography>
 
           {selectedLabels && selectedLabels.length > 0 && (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1 }}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1, maxWidth: "100%" }}>
               {selectedLabels.map((label) => (
                 <Box
                   key={label.id}
@@ -517,7 +610,8 @@ const NotesThird = ({
                     backgroundColor: "rgba(0,0,0,0.08)",
                     borderRadius: "4px",
                     padding: "2px 8px",
-                    fontSize: "12px",
+                    fontSize: { xs: "10px", sm: "10px", md: "12px" },
+                    marginBottom: "4px",
                     "&:hover": {
                       "& .remove-icon": {
                         opacity: 1,
@@ -562,33 +656,42 @@ const NotesThird = ({
             bottom: 8,
             left: 8,
             right: 8,
-            gap: 0.5,
-            opacity: hovered ? 1 : 0,
+            gap: { xs: 0.25, sm: 0.25, md: 0.5 },
+            flexWrap: { xs: "wrap", sm: "wrap", md: "nowrap" },
+            opacity: { xs: 1, sm: 1, md: hovered ? 1 : 0 },
             transition: "opacity 0.2s ease-in-out",
           }}
         >
           {!isTrashed && (
             <>
-              <IconButton
-                size="small"
-                data-action-button="true"
-                onClick={handleActionClick}
-              >
-                <NotificationsNoneIcon sx={{ fontSize: 18, color: "#5f6368" }} />
-              </IconButton>
-              <IconButton
-                size="small"
-                data-action-button="true"
-                onClick={handleActionClick}
-              >
+              <Tooltip title={hasReminder ? "Remove reminder" : "Add reminder"}>
+                <IconButton
+                  size="small"
+                  onClick={handleToggleReminder}
+                  disabled={isTogglingReminder}
+                  data-action-button="true"
+                >
+                  {hasReminder ? (
+                    <NotificationsActiveIcon
+                      sx={{
+                        fontSize: 18,
+                        color: isTogglingReminder ? "#bdbdbd" : "#5f6368",
+                      }}
+                    />
+                  ) : (
+                    <NotificationsNoneIcon
+                      sx={{
+                        fontSize: 18,
+                        color: isTogglingReminder ? "#bdbdbd" : "#5f6368",
+                      }}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <IconButton size="small" data-action-button="true" onClick={handleActionClick}>
                 <PersonAddIcon sx={{ fontSize: 18, color: "#5f6368" }} />
               </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleColorClick}
-                disabled={isChangingColor}
-                data-action-button="true"
-              >
+              <IconButton size="small" onClick={handleColorClick} disabled={isChangingColor} data-action-button="true">
                 <PaletteIcon
                   sx={{
                     fontSize: 18,
@@ -596,19 +699,10 @@ const NotesThird = ({
                   }}
                 />
               </IconButton>
-              <IconButton
-                size="small"
-                data-action-button="true"
-                onClick={handleActionClick}
-              >
+              <IconButton size="small" data-action-button="true" onClick={handleActionClick}>
                 <ImageIcon sx={{ fontSize: 18, color: "#5f6368" }} />
               </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleArchiveToggle}
-                disabled={isArchiving}
-                data-action-button="true"
-              >
+              <IconButton size="small" onClick={handleArchiveToggle} disabled={isArchiving} data-action-button="true">
                 {isArchived ? (
                   <UnarchiveIcon
                     sx={{
@@ -625,21 +719,12 @@ const NotesThird = ({
                   />
                 )}
               </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleMoreMenuOpen}
-                data-action-button="true"
-              >
+              <IconButton size="small" onClick={handleMoreMenuOpen} data-action-button="true">
                 <MoreVertIcon sx={{ fontSize: 18, color: "#5f6368" }} />
               </IconButton>
             </>
           )}
-          <IconButton
-            size="small"
-            onClick={handleTrashToggle}
-            disabled={isTrashing}
-            data-action-button="true"
-          >
+          <IconButton size="small" onClick={handleTrashToggle} disabled={isTrashing} data-action-button="true">
             {isTrashed ? (
               <RestoreFromTrashIcon
                 sx={{
@@ -694,7 +779,7 @@ const NotesThird = ({
               display: "flex",
               flexWrap: "wrap",
               gap: 0.5,
-              maxWidth: "220px",
+              maxWidth: { xs: "180px", sm: "180px", md: "220px" },
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -706,10 +791,7 @@ const NotesThird = ({
                   width: 32,
                   height: 32,
                   backgroundColor: colorOption.value,
-                  border:
-                    localColor === colorOption.value
-                      ? "2px solid #000"
-                      : "1px solid #e0e0e0",
+                  border: localColor === colorOption.value ? "2px solid #000" : "1px solid #e0e0e0",
                   "&:hover": {
                     backgroundColor: colorOption.value,
                     opacity: 0.8,
@@ -735,6 +817,12 @@ const NotesThird = ({
           </MenuItem>
         </Menu>
 
+        <ReminderDialog
+          open={isReminderDialogOpen}
+          onClose={() => setIsReminderDialogOpen(false)}
+          onSave={handleAddReminder}
+        />
+
         <Dialog
           open={isLabelDialogOpen}
           onClose={handleLabelDialogClose}
@@ -753,10 +841,7 @@ const NotesThird = ({
                 variant="standard"
                 sx={{ mx: 1 }}
               />
-              <IconButton
-                onClick={handleAddLabel}
-                disabled={!newLabelText.trim() || isAddingLabel}
-              >
+              <IconButton onClick={handleAddLabel} disabled={!newLabelText.trim() || isAddingLabel}>
                 {isAddingLabel ? <CircularProgress size={24} /> : <PersonAddIcon />}
               </IconButton>
             </Box>
@@ -785,30 +870,33 @@ const NotesThird = ({
             </Button>
           </DialogActions>
         </Dialog>
-      </Paper>
 
-      <Modal
-        open={isEditModalOpen}
-        onClose={handleEditClose}
-        aria-labelledby="edit-note-modal"
-        aria-describedby="modal-to-edit-note"
-      >
-        <div>
-          <Notes2
-            editNote={{
-              id,
-              title,
-              note: content,
-              isPinned: false,
-            }}
-            onEdit={handleEditSave}
-            setExpanded={handleEditClose}
-            backgroundColor={localColor}
-          />
-        </div>
-      </Modal>
+        <Modal
+          open={isEditModalOpen}
+          onClose={handleEditClose}
+          aria-labelledby="edit-note-modal"
+          aria-describedby="modal-to-edit-note"
+        >
+          <div>
+            <Notes2
+              editNote={{
+                id,
+                title,
+                note: content,
+                isPinned: false,
+              }}
+              onEdit={handleEditSave}
+              setExpanded={handleEditClose}
+              backgroundColor={localColor}
+            />
+          </div>
+        </Modal>
+      </Paper>
     </>
-  );
-};
+  )
+}
 
 export default NotesThird;
+
+
+

@@ -14,6 +14,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthorizedRoute from "./routes/AuthorizedRoute";
 import Trash from "./components/trash";
 import EditLabels from "./components/EditLabel";
+import ReminderNotes from "./components/ReminderNotes";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="archive" element={<Archive />} />
             <Route path="trash" element={<Trash />} />
             <Route path="edit-labels" element={<EditLabels />} />
+            <Route path="reminders" element={<ReminderNotes />} />
           </Route>
         </Route>
 

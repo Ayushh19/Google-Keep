@@ -1,66 +1,69 @@
 
-"use client";
 
-import { useState, useEffect } from "react";
-import { TextField, Paper, IconButton, Box } from "@mui/material";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import BrushIcon from "@mui/icons-material/Brush";
-import ImageIcon from "@mui/icons-material/Image";
-import Notes2 from "./NotesSecond";
-import NotesThird from "./NotesThird";
-import axios from "axios";
-import { useOutletContext } from "react-router-dom";
+
+
+"use client"
+
+import { useState, useEffect } from "react"
+import { TextField, Paper, IconButton, Box } from "@mui/material"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import BrushIcon from "@mui/icons-material/Brush"
+import ImageIcon from "@mui/icons-material/Image"
+import Notes2 from "./NotesSecond"
+import NotesThird from "./NotesThird"
+import axios from "axios"
+import { useOutletContext } from "react-router-dom"
 
 const NoteInput = () => {
-  const [expanded, setExpanded] = useState(false);
-  const [notes, setNotes] = useState([]);
-  const [labels, setLabels] = useState([]);
-  const { isListView, searchQuery } = useOutletContext();
+  const [expanded, setExpanded] = useState(false)
+  const [notes, setNotes] = useState([])
+  const [labels, setLabels] = useState([])
+  const { isListView, searchQuery } = useOutletContext()
 
   useEffect(() => {
-    fetchNotes();
-    fetchLabels();
-  }, []);
+    fetchNotes()
+    fetchLabels()
+  }, [])
 
   const fetchNotes = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
       const response = await axios.get("https://fundoonotes.incubation.bridgelabz.com/api/notes/getNotesList", {
         headers: {
           Authorization: token,
         },
-      });
+      })
       if (response.data?.data?.data) {
-        const activeNotes = response.data.data.data.filter((note) => !note.isArchived && !note.isDeleted);
-        setNotes(activeNotes);
+        const activeNotes = response.data.data.data.filter((note) => !note.isArchived && !note.isDeleted)
+        setNotes(activeNotes)
       }
     } catch (error) {
-      console.error("Error fetching notes:", error);
+      console.error("Error fetching notes:", error)
     }
-  };
+  }
 
   const fetchLabels = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
       const response = await axios.get(
         "https://fundoonotes.incubation.bridgelabz.com/api/noteLabels/getNoteLabelList",
         {
           headers: {
             Authorization: token,
           },
-        }
-      );
+        },
+      )
       if (response.data?.data?.details) {
-        setLabels(response.data.data.details);
+        setLabels(response.data.data.details)
       }
     } catch (error) {
-      console.error("Error fetching labels:", error);
+      console.error("Error fetching labels:", error)
     }
-  };
+  }
 
   const addNote = async (newNote) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
       const noteData = {
         title: newNote.title,
@@ -68,7 +71,7 @@ const NoteInput = () => {
         isPined: newNote.isPinned,
         isArchived: false,
         color: "",
-      };
+      }
 
       const response = await axios({
         method: "post",
@@ -78,65 +81,57 @@ const NoteInput = () => {
           "Content-Type": "application/json",
         },
         data: noteData,
-      });
+      })
 
       if (response.data?.status?.success) {
-        await fetchNotes();
+        await fetchNotes()
       }
     } catch (error) {
-      console.error("Error adding note:", error?.response?.data || error.message);
+      console.error("Error adding note:", error?.response?.data || error.message)
     }
-  };
+  }
 
   const handleArchiveToggle = (noteId, isArchived) => {
     if (isArchived) {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
     } else {
-      fetchNotes();
+      fetchNotes()
     }
-  };
+  }
 
   const handleTrashToggle = (noteId, isTrashed) => {
     if (isTrashed) {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
     } else {
-      fetchNotes();
+      fetchNotes()
     }
-  };
+  }
 
   const handleDeleteForever = (noteId, revert = false) => {
     if (!revert) {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId))
     } else {
-      fetchNotes();
+      fetchNotes()
     }
-  };
+  }
 
   const handleColorChange = (noteId, newColor) => {
-    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)));
-  };
-  
-  
+    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, color: newColor } : note)))
+  }
 
   const handleLabelChange = (noteId, newLabels) => {
-    setNotes((prevNotes) => 
-      prevNotes.map((note) => 
-        note.id === noteId 
-          ? { ...note, noteLabels: newLabels } 
-          : note
-      )
-    );
-  };
+    setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? { ...note, noteLabels: newLabels } : note)))
+  }
 
   const handleEditNote = async (noteId, editedTitle, editedContent) => {
     setNotes((prevNotes) =>
       prevNotes.map((note) =>
-        note.id === noteId ? { ...note, title: editedTitle, description: editedContent } : note
-      )
-    );
+        note.id === noteId ? { ...note, title: editedTitle, description: editedContent } : note,
+      ),
+    )
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
       await axios({
         method: "post",
         url: "https://fundoonotes.incubation.bridgelabz.com/api/notes/updateNotes",
@@ -149,28 +144,28 @@ const NoteInput = () => {
           title: editedTitle,
           description: editedContent,
         },
-      });
+      })
     } catch (error) {
-      console.error("Error updating note:", error);
+      console.error("Error updating note:", error)
     }
-  };
+  }
 
   const highlightText = (text, query) => {
-    if (!query) return text;
+    if (!query) return text
 
-    const regex = new RegExp(`(${query})`, "gi");
+    const regex = new RegExp(`(${query})`, "gi")
     return text.split(regex).map((part, index) =>
       regex.test(part) ? (
-        <span key={index} style={{ backgroundColor: "yellow" }}>{part}</span>
+        <span key={index} style={{ backgroundColor: "yellow" }}>
+          {part}
+        </span>
       ) : (
         part
-      )
-    );
-  };
+      ),
+    )
+  }
 
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <>
@@ -182,8 +177,10 @@ const NoteInput = () => {
             display: "flex",
             justifyContent: "center",
             marginTop: "80px",
-            marginLeft: "180px",
-            width: "calc(100% - 250px)",
+            marginLeft: { xs: "60px", sm: "100px", md: "180px" }, // Adjusted for mobile
+            width: { xs: "calc(100% - 70px)", sm: "calc(100% - 120px)", md: "calc(100% - 250px)" }, // Adjusted for mobile
+            position: "relative", // Added position relative
+            zIndex: 1, // Added z-index
           }}
         >
           <Paper
@@ -191,7 +188,8 @@ const NoteInput = () => {
               display: "flex",
               alignItems: "center",
               padding: "2px 16px",
-              width: "600px",
+              width: { xs: "100%", sm: "80%", md: "600px" },
+              maxWidth: "600px",
               borderRadius: "8px",
               boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
               cursor: "pointer",
@@ -230,9 +228,21 @@ const NoteInput = () => {
           flexWrap: isListView ? "nowrap" : "wrap",
           flexDirection: isListView ? "column" : "row",
           alignItems: isListView ? "center" : "flex-start",
-          marginLeft: isListView ? "180px" : "250px",
+          justifyContent: {
+            xs: "center",
+            sm: isListView ? "flex-start" : "center",
+            md: isListView ? "center" : "flex-start",
+          },
+          marginLeft: { xs: "60px", sm: isListView ? "100px" : "16px", md: isListView ? "180px" : "250px" }, // Adjusted for mobile
+          marginRight: { xs: "10px", sm: "16px", md: 0 }, // Adjusted for mobile
           marginTop: "20px",
-          width: isListView ? "1230px" : "calc(100% - 250px)",
+          width: {
+            xs: "calc(100% - 70px)", // Adjusted for mobile
+            sm: isListView ? "calc(100% - 120px)" : "calc(100% - 32px)",
+            md: isListView ? "1230px" : "calc(100% - 250px)",
+          },
+          position: "relative", // Added position relative
+          zIndex: 1, // Added z-index
         }}
       >
         {filteredNotes.map((note) => (
@@ -253,15 +263,12 @@ const NoteInput = () => {
             onEdit={handleEditNote}
             fetchNotes={fetchNotes}
             availableLabels={labels}
-            sx={{
-              width: isListView ? "580px" : "200px",
-              margin: isListView ? "8px 0" : "8px",
-            }}
           />
         ))}
       </Box>
     </>
-  );
-};
+  )
+}
 
 export default NoteInput;
+

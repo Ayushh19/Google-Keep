@@ -9,7 +9,6 @@ import { AppBar, Box, Toolbar, IconButton, Typography, MenuItem, Menu, InputBase
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
-  Refresh as RefreshIcon,
   ViewStream as ViewStreamIcon,
   ViewList as ViewListIcon,
   AccountCircle,
@@ -61,7 +60,7 @@ function Header({ toggleDrawer, toggleView, onSearch }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null)
   const [searchQuery, setSearchQuery] = useState("") // State for search query
-  const [isStreamView, setIsStreamView] = useState(true) // Add this line to track view state
+  const [isStreamView, setIsStreamView] = useState(true) 
 
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
@@ -137,16 +136,16 @@ function Header({ toggleDrawer, toggleView, onSearch }) {
           {isStreamView ? <ViewStreamIcon /> : <ViewListIcon />}
         </IconButton>
       </MenuItem>
-      <MenuItem>
+      {/* <MenuItem>
         <IconButton size="large" color="inherit">
           <RefreshIcon />
         </IconButton>
-      </MenuItem>
-      <MenuItem>
+      </MenuItem> */}
+      {/* <MenuItem>
         <IconButton size="large" color="inherit">
           <ViewStreamIcon />
         </IconButton>
-      </MenuItem>
+      </MenuItem> */}
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           size="large"
