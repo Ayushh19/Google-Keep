@@ -1,22 +1,23 @@
 
 
 
-
-
-
+// App.js
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Dashboard from "./pages/Dashboard";
 import Archive from "./components/Archive";
-import NoteInput from "./components/NoteInput"; // Import NoteInput
+import NoteInput from "./components/NoteInput";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthorizedRoute from "./routes/AuthorizedRoute";
 import Trash from "./components/trash";
 import EditLabels from "./components/EditLabel";
 import ReminderNotes from "./components/ReminderNotes";
 
+
 function App() {
+  
+
   return (
     <BrowserRouter>
       <Routes>
@@ -29,7 +30,7 @@ function App() {
         {/* Protected Routes - Only for authenticated users */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<NoteInput />} />  {/* ✅ Default component for /dashboard */}
+            <Route index element={<NoteInput />} />
             <Route path="archive" element={<Archive />} />
             <Route path="trash" element={<Trash />} />
             <Route path="edit-labels" element={<EditLabels />} />

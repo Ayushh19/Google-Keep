@@ -1,10 +1,12 @@
 
 
 
-
+// Sidebar.js
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Box, Tooltip } from "@mui/material";
+import { useDispatch } from 'react-redux';
+import { setCurrentPage } from '../features/pageSlice';
 import {
   Lightbulb as LightbulbIcon,
   Notifications as NotificationsIcon,
@@ -24,8 +26,14 @@ const menuItems = [
 function Sidebar() {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ Get current route
+  const location = useLocation();
+  const dispatch = useDispatch();
   const drawerWidth = hovered ? 280 : 72;
+
+  const handleNavigation = (path) => {
+    dispatch(setCurrentPage(path));
+    navigate(path);
+  };
 
   return (
     <Drawer
@@ -52,7 +60,7 @@ function Sidebar() {
       <Box sx={{ overflow: "auto" }}>
         <List>
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path; // ✅ Check if this item is active
+            const isActive = location.pathname === item.path;
             return (
               <ListItem
                 key={item.text}
@@ -62,13 +70,13 @@ function Sidebar() {
                   borderTopLeftRadius: "50px",
                   borderBottomLeftRadius: "50px",
                   mr: 1,
-                  backgroundColor: isActive ? "#feefc3" : "transparent", // ✅ Highlight active button
+                  backgroundColor: isActive ? "#feefc3" : "transparent",
                   "&:hover": !isActive && { backgroundColor: "#D3D3D3" },
                   cursor: "pointer",
                   justifyContent: hovered ? "flex-start" : "center",
                   px: hovered ? 2 : 1,
                 }}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigation(item.path)}
               >
                 <Tooltip title={hovered ? "" : item.text} placement="right">
                   <ListItemIcon sx={{ minWidth: hovered ? 56 : "auto" }}>
